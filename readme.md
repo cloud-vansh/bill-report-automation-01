@@ -20,7 +20,4 @@ A Streamlit web application for automated bill report processing and management.
 - Files must contain specific column headers (JOB NO, JOB DATE, etc.)
 
 ## Access
-Visit the live app: [Your Streamlit URL will be here]
-
-## Support
-For issues or questions, contact [Your Name/Email]
+Visit the live app: [billreport.streamlit.app]
