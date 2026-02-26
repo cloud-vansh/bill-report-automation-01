@@ -4,82 +4,63 @@ from collections import defaultdict
 from datetime import datetime
 import pandas as pd
 
-# ================= PAGE CONFIG =================
+# ─── PAGE CONFIG ───
 st.set_page_config(
-    page_title="Ledger — Bill Report Automation",
-    page_icon="📜",
+    page_title="BillFlow Studio",
+    page_icon="✦",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# ================= SESSION STATE =================
-if 'selected_month' not in st.session_state:
-    st.session_state.selected_month = datetime.now().month - 1
-if 'processing_history' not in st.session_state:
-    st.session_state.processing_history = []
-if 'show_preview' not in st.session_state:
-    st.session_state.show_preview = False
-if 'show_settings' not in st.session_state:
-    st.session_state.show_settings = False
+# ─── SESSION STATE ───
+if 'selected_month'      not in st.session_state: st.session_state.selected_month      = datetime.now().month - 1
+if 'processing_history'  not in st.session_state: st.session_state.processing_history  = []
+if 'show_preview'        not in st.session_state: st.session_state.show_preview        = False
+if 'show_settings'       not in st.session_state: st.session_state.show_settings       = False
 
-# ================= THEME =================
+# ─── DESIGN SYSTEM ───
 THEME = """
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=IM+Fell+English:ital@0;1&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Dancing+Script:wght@500;600;700&family=Jost:wght@300;400;500;600&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
 
 :root {
-    /* Parchment palette */
-    --parch-0:       #FDFAF3;
-    --parch-1:       #F7EDD8;
-    --parch-2:       #EFE0BE;
-    --parch-3:       #E4D0A2;
-    --parch-4:       #D4BB84;
+    /* Cream & Brown palette — straight from Havanza */
+    --cream:         #FAF2E2;
+    --cream-dark:    #F2E6CC;
+    --cream-deeper:  #E8D8B4;
+    --espresso:      #3B1A09;
+    --brown-mid:     #6B3520;
+    --brown-light:   #9B6040;
+    --brown-pale:    #C8A882;
+    --sienna:        #C4622A;
+    --sienna-light:  #E07840;
+    --sienna-pale:   rgba(196,98,42,0.1);
 
-    /* Ink shades */
-    --ink-0:         #2A1C08;
-    --ink-1:         #3D2B12;
-    --ink-2:         #5C4024;
-    --ink-3:         #7A5B38;
-    --ink-4:         #9B7B58;
-    --ink-5:         #BDA07A;
+    /* Card frame colours — like Havanza's gallery borders */
+    --frame-green:   #5B9E6A;
+    --frame-orange:  #D4733A;
+    --frame-yellow:  #C8A82A;
+    --frame-teal:    #3A8A8A;
 
-    /* Accent: antique crimson */
-    --accent:        #8B3A2A;
-    --accent-soft:   #A04A38;
-    --accent-pale:   rgba(139,58,42,0.1);
-    --accent-border: rgba(139,58,42,0.3);
-
-    /* Verdigris (aged copper green) */
-    --verdant:       #4A7B6A;
-    --verdant-pale:  rgba(74,123,106,0.12);
-    --verdant-border:rgba(74,123,106,0.3);
-
-    /* Aged gold */
-    --gilt:          #9A6F2A;
-    --gilt-soft:     #C49040;
-
-    /* Borders */
-    --rule-light:    rgba(139,110,70,0.18);
-    --rule-mid:      rgba(139,110,70,0.32);
-    --rule-strong:   rgba(139,110,70,0.55);
+    /* Typography */
+    --font-display:  'Abril Fatface', Georgia, serif;
+    --font-script:   'Dancing Script', cursive;
+    --font-serif:    'Playfair Display', Georgia, serif;
+    --font-body:     'Jost', sans-serif;
+    --font-mono:     'Courier Prime', monospace;
 
     /* Shadows */
-    --shadow-sm:     0 1px 4px rgba(42,28,8,0.08);
-    --shadow-md:     0 3px 12px rgba(42,28,8,0.12);
-    --shadow-lg:     0 6px 28px rgba(42,28,8,0.16);
+    --shadow-sm:  0 2px 8px rgba(59,26,9,0.08);
+    --shadow-md:  0 4px 20px rgba(59,26,9,0.12);
+    --shadow-lg:  0 8px 40px rgba(59,26,9,0.16);
+    --shadow-xl:  0 16px 64px rgba(59,26,9,0.20);
 
-    /* Type */
-    --font-display:  'Cormorant Garant', Georgia, serif;
-    --font-body:     'Crimson Pro', Georgia, serif;
-    --font-fell:     'IM Fell English', Georgia, serif;
-    --font-mono:     'Courier Prime', 'Courier New', monospace;
-
-    --radius-sm:  4px;
-    --radius-md:  8px;
-    --radius-lg:  14px;
-    --radius-xl:  20px;
+    --radius-sm:  6px;
+    --radius-md:  12px;
+    --radius-lg:  20px;
+    --radius-pill:50px;
 }
 
-/* ─── GLOBAL RESET ─── */
+/* ── GLOBAL ── */
 *, *::before, *::after { box-sizing: border-box; }
 
 html, body,
@@ -87,579 +68,667 @@ html, body,
 [data-testid="stAppViewBlockContainer"],
 .main .block-container {
     font-family: var(--font-body) !important;
-    background: var(--parch-1) !important;
-    color: var(--ink-0) !important;
+    background: var(--cream) !important;
+    color: var(--espresso) !important;
 }
 
-.main { background: var(--parch-1) !important; }
+.main { background: var(--cream) !important; }
 .block-container {
     max-width: 1380px !important;
-    padding: 2rem 2.5rem !important;
+    padding: 0 0 3rem 0 !important;
 }
 
-/* ─── PARCHMENT GRAIN OVERLAY ─── */
-.stApp::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* Soft vignette */
-.stApp::after {
-    content: '';
-    position: fixed; inset: 0;
-    background: radial-gradient(ellipse at center, transparent 60%, rgba(42,28,8,0.07) 100%);
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* ─── HIDE STREAMLIT CHROME ─── */
+/* ── HIDE STREAMLIT CHROME ── */
 #MainMenu, footer, .stDeployButton,
-[data-testid="stToolbar"],
-[data-testid="stDecoration"],
-[data-testid="stStatusWidget"] {
-    visibility: hidden !important;
-    display: none !important;
-}
+[data-testid="stToolbar"], [data-testid="stDecoration"],
+[data-testid="stStatusWidget"] { visibility: hidden !important; display: none !important; }
 
-/* ─── SCROLLBAR ─── */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: var(--parch-2); }
-::-webkit-scrollbar-thumb { background: var(--parch-4); border-radius: 3px; }
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--cream-dark); }
+::-webkit-scrollbar-thumb { background: var(--brown-pale); border-radius: 4px; }
 
-/* ─── HEADER ─── */
-.ledger-header {
-    text-align: center;
-    padding: 2.5rem 2rem 1.75rem;
-    position: relative;
-    margin-bottom: 2rem;
-}
-.lh-ornament {
-    font-family: var(--font-display);
-    color: var(--gilt);
-    font-size: 1.1rem;
-    letter-spacing: 0.3em;
-    margin-bottom: 0.5rem;
-    display: block;
-}
-.lh-double-rule {
-    height: 3px;
-    border-top: 1px solid var(--rule-strong);
-    border-bottom: 1px solid var(--rule-mid);
-    margin: 0.75rem auto;
-    width: 100%;
-}
-.lh-title {
-    font-family: var(--font-display);
-    font-size: 3.4rem;
-    font-weight: 600;
-    color: var(--ink-0);
-    letter-spacing: -0.01em;
-    line-height: 1.05;
-    margin-bottom: 0.2rem;
-}
-.lh-title em {
-    font-style: italic;
-    color: var(--accent);
-}
-.lh-subtitle {
-    font-family: var(--font-fell);
-    font-style: italic;
-    font-size: 1.05rem;
-    color: var(--ink-3);
-    letter-spacing: 0.04em;
-    margin-bottom: 0.75rem;
-}
-.lh-meta {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    color: var(--ink-4);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-}
-
-/* ─── SECTION HEADING ─── */
-.sect-heading {
-    font-family: var(--font-display);
-    font-size: 1.35rem;
-    font-weight: 500;
-    color: var(--ink-1);
+/* ══════════════════════════════════
+   NAV BAR  (top strip)
+══════════════════════════════════ */
+.hv-nav {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-    letter-spacing: 0.01em;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    height: 68px;
+    background: var(--cream);
+    border-bottom: 1px solid rgba(59,26,9,0.12);
+    position: sticky; top: 0; z-index: 100;
 }
-.sect-heading::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--rule-mid);
-}
-.sect-heading span {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--ink-4);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    border: 1px solid var(--rule-mid);
-    padding: 0.2rem 0.55rem;
-    border-radius: 3px;
-    background: var(--parch-0);
-}
-
-/* ─── CARD ─── */
-.v-card {
-    background: var(--parch-0);
-    border: 1px solid var(--rule-mid);
-    border-radius: var(--radius-lg);
-    padding: 1.75rem;
-    box-shadow: var(--shadow-md);
-    position: relative;
-    overflow: hidden;
-}
-.v-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg,
-        transparent 0%,
-        var(--rule-mid) 15%,
-        var(--gilt) 50%,
-        var(--rule-mid) 85%,
-        transparent 100%
-    );
-    opacity: 0.6;
-}
-
-/* ─── ORNAMENTAL DIVIDER ─── */
-.orn-divider {
-    text-align: center;
-    color: var(--ink-5);
-    font-size: 1rem;
-    margin: 1.1rem 0;
+.nav-left, .nav-right {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 2rem;
 }
-.orn-divider::before, .orn-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--rule-light);
-}
-
-/* ─── UPLOAD ITEMS ─── */
-.upload-entry {
-    background: var(--parch-1);
-    border: 1px solid var(--rule-light);
-    border-radius: var(--radius-md);
-    padding: 1.15rem 1.25rem 0.9rem;
-    margin-bottom: 0.85rem;
-    transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
-    position: relative;
-}
-.upload-entry:last-of-type { margin-bottom: 0; }
-.upload-entry:hover {
-    border-color: var(--rule-strong);
-    background: var(--parch-0);
-    box-shadow: var(--shadow-sm);
-}
-
-.ue-row {
-    display: flex;
-    align-items: baseline;
-    gap: 0.85rem;
-    margin-bottom: 0.2rem;
-}
-.ue-numeral {
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    color: var(--ink-5);
-    background: var(--parch-2);
-    border: 1px solid var(--rule-light);
-    padding: 0.1rem 0.45rem;
-    border-radius: 3px;
-    letter-spacing: 0.05em;
-    flex-shrink: 0;
-}
-.ue-title {
-    font-family: var(--font-display);
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: var(--ink-1);
-}
-.ue-desc {
+.nav-link {
     font-family: var(--font-body);
     font-size: 0.88rem;
-    color: var(--ink-4);
-    font-style: italic;
-    padding-left: 2.8rem;
-    margin-bottom: 0.6rem;
-    line-height: 1.4;
+    font-weight: 500;
+    color: var(--brown-mid);
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: color 0.2s;
 }
-.file-loaded {
+.nav-link:hover { color: var(--espresso); }
+.nav-wordmark {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: var(--espresso);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+.nav-wordmark-icon { color: var(--sienna); font-size: 1.1rem; }
+.nav-pill {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--cream) !important;
+    background: var(--espresso);
+    border: none;
+    padding: 0.55rem 1.4rem;
+    border-radius: var(--radius-pill);
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+.nav-pill:hover { background: var(--brown-mid); transform: translateY(-1px); }
+
+/* ══════════════════════════════════
+   HERO BANNER
+══════════════════════════════════ */
+.hv-hero {
+    background: var(--cream-dark);
+    padding: 3.5rem 2.5rem 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(59,26,9,0.08);
+}
+/* Subtle radial warm glow */
+.hv-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 80% at 50% 100%, rgba(196,98,42,0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+.hero-script {
+    font-family: var(--font-script);
+    font-size: 1.6rem;
+    color: var(--sienna);
+    display: block;
+    margin-bottom: 0.25rem;
+    animation: fadeInDown 0.5s ease both;
+}
+.hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    color: var(--espresso);
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    margin: 0 auto 0.4rem;
+    animation: fadeInUp 0.55s ease 0.1s both;
+}
+.hero-title em {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 0.9em;
+    color: var(--brown-mid);
+}
+.hero-sub {
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    font-weight: 400;
+    color: var(--brown-light);
+    letter-spacing: 0.06em;
+    margin-bottom: 1.75rem;
+    animation: fadeInUp 0.6s ease 0.2s both;
+}
+.hero-cta-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    animation: fadeInUp 0.65s ease 0.3s both;
+}
+.hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: var(--espresso);
+    color: var(--cream);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.85rem 2rem;
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-md);
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.hero-btn:hover {
+    background: var(--brown-mid);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+.hero-btn-arrow {
+    width: 24px; height: 24px;
+    background: var(--sienna);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+}
+@keyframes fadeInDown {
+    from { opacity:0; transform:translateY(-12px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeInUp {
+    from { opacity:0; transform:translateY(14px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+
+/* ══════════════════════════════════
+   SECTION TITLE  ("Moments & emotions" style)
+══════════════════════════════════ */
+.hv-section-row {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0 2.5rem;
+    margin: 2.5rem 0 1.5rem;
+}
+.hv-section-title {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--espresso);
+    white-space: nowrap;
+}
+.hv-section-rule {
+    flex: 1;
+    height: 1px;
+    background: rgba(59,26,9,0.15);
+}
+.hv-section-tag {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brown-light);
+    background: var(--cream-dark);
+    border: 1px solid rgba(59,26,9,0.15);
+    padding: 0.3rem 0.85rem;
+    border-radius: var(--radius-pill);
+}
+
+/* ══════════════════════════════════
+   UPLOAD CARDS  (colorful bordered frames)
+══════════════════════════════════ */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding: 0 2.5rem;
+}
+.upload-card {
+    background: var(--cream);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.25s, box-shadow 0.25s;
+    position: relative;
+}
+.upload-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+}
+.card-frame-top {
+    height: 6px;
+    width: 100%;
+}
+.card-body { padding: 1.6rem 1.5rem 1.25rem; }
+.card-badge {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-size: 0.68rem;
-    color: var(--verdant);
-    background: var(--verdant-pale);
-    border: 1px solid var(--verdant-border);
-    padding: 0.25rem 0.7rem;
-    border-radius: 3px;
-    margin-left: 2.8rem;
-    margin-top: 0.35rem;
-    letter-spacing: 0.08em;
+    font-weight: 600;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
+    padding: 0.28rem 0.75rem;
+    border-radius: var(--radius-pill);
+    margin-bottom: 1rem;
 }
+.card-title {
+    font-family: var(--font-serif);
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--espresso);
+    margin-bottom: 0.3rem;
+    line-height: 1.2;
+}
+.card-desc {
+    font-family: var(--font-body);
+    font-size: 0.84rem;
+    color: var(--brown-light);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+.card-loaded {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 0.3rem 0.8rem;
+    border-radius: var(--radius-pill);
+    margin-bottom: 0.65rem;
+}
+/* Per-card colour theming */
+.card-green .card-frame-top   { background: var(--frame-green); }
+.card-green .card-badge        { color: var(--frame-green); background: rgba(91,158,106,0.1); border: 1px solid rgba(91,158,106,0.25); }
+.card-green .card-loaded       { color: var(--frame-green); background: rgba(91,158,106,0.1); border: 1px solid rgba(91,158,106,0.25); }
 
-/* ─── PREVIEW TABLE ─── */
-.preview-ledger {
-    background: var(--parch-1);
-    border: 1px solid var(--rule-light);
+.card-orange .card-frame-top  { background: var(--frame-orange); }
+.card-orange .card-badge       { color: var(--frame-orange); background: rgba(212,115,58,0.1); border: 1px solid rgba(212,115,58,0.25); }
+.card-orange .card-loaded      { color: var(--frame-orange); background: rgba(212,115,58,0.1); border: 1px solid rgba(212,115,58,0.25); }
+
+.card-yellow .card-frame-top  { background: var(--frame-yellow); }
+.card-yellow .card-badge       { color: var(--frame-yellow); background: rgba(200,168,42,0.1); border: 1px solid rgba(200,168,42,0.25); }
+.card-yellow .card-loaded      { color: var(--frame-yellow); background: rgba(200,168,42,0.1); border: 1px solid rgba(200,168,42,0.25); }
+
+/* preview mini-table */
+.preview-mini {
+    background: var(--cream-dark);
     border-radius: var(--radius-sm);
+    padding: 0.65rem 0.85rem;
     margin-top: 0.55rem;
-    margin-left: 2.8rem;
+}
+.pm-row {
+    display: flex; justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--brown-mid);
+    padding: 0.2rem 0;
+    border-bottom: 1px solid rgba(59,26,9,0.07);
+}
+.pm-row:last-child { border-bottom: none; }
+.pm-val { font-weight: 700; color: var(--sienna); }
+
+/* ══════════════════════════════════
+   CONFIG PANEL
+══════════════════════════════════ */
+.config-wrap {
+    padding: 0 2.5rem;
+    margin-top: 2.5rem;
+}
+.config-card {
+    background: var(--espresso);
+    border-radius: var(--radius-lg);
+    padding: 2.25rem 2rem;
+    box-shadow: var(--shadow-xl);
+    position: relative;
     overflow: hidden;
 }
-.pl-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.35rem 0.85rem;
-    border-bottom: 1px solid var(--rule-light);
-    font-family: var(--font-mono);
-    font-size: 0.71rem;
-    color: var(--ink-3);
+.config-card::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(196,98,42,0.15);
 }
-.pl-row:last-child { border-bottom: none; }
-.pl-val { font-weight: 700; color: var(--accent); }
-
-/* ─── CONFIG LABELS ─── */
-.conf-label {
-    font-family: var(--font-fell);
-    font-size: 1rem;
-    font-style: italic;
-    color: var(--ink-2);
+.config-card::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -40px;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.03);
+}
+.config-script {
+    font-family: var(--font-script);
+    font-size: 1.3rem;
+    color: var(--sienna-light);
     display: block;
-    margin-bottom: 0.45rem;
-    letter-spacing: 0.02em;
+    margin-bottom: 0.1rem;
 }
-
-/* ─── ALERTS ─── */
-.v-alert-info {
-    background: rgba(74,123,106,0.06);
-    border: 1px solid var(--verdant-border);
-    border-left: 3px solid var(--verdant);
-    border-radius: var(--radius-sm);
-    padding: 0.6rem 0.9rem;
+.config-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--cream);
+    line-height: 1.1;
+    margin-bottom: 1.75rem;
+    position: relative; z-index: 1;
+}
+.config-label {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brown-pale);
+    display: block;
+    margin-bottom: 0.5rem;
+    position: relative; z-index: 1;
+}
+.config-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+    margin: 1.5rem 0;
+    position: relative; z-index: 1;
+}
+.mode-note {
     font-family: var(--font-body);
     font-style: italic;
-    font-size: 0.88rem;
-    color: var(--verdant);
-    margin-top: 0.5rem;
-    line-height: 1.4;
-}
-.v-alert-warn {
-    background: var(--accent-pale);
-    border: 1px solid var(--accent-border);
-    border-left: 3px solid var(--accent);
+    font-size: 0.8rem;
+    margin-top: 0.6rem;
+    padding: 0.55rem 0.85rem;
     border-radius: var(--radius-sm);
-    padding: 0.6rem 0.9rem;
-    font-family: var(--font-body);
-    font-style: italic;
-    font-size: 0.88rem;
-    color: var(--accent);
-    margin-top: 0.5rem;
-    line-height: 1.4;
+    position: relative; z-index: 1;
+    line-height: 1.45;
 }
+.mode-note-green { color: #8EC49A; background: rgba(91,158,106,0.12); border: 1px solid rgba(91,158,106,0.2); }
+.mode-note-warn  { color: #E0A880; background: rgba(196,98,42,0.15);  border: 1px solid rgba(196,98,42,0.25); }
 
-/* ─── SELECTBOX ─── */
+/* ══════════════════════════════════
+   STREAMLIT OVERRIDES
+══════════════════════════════════ */
+
+/* Selectbox */
 [data-testid="stSelectbox"] > div > div {
-    background: var(--parch-1) !important;
-    border: 1px solid var(--rule-mid) !important;
+    background: rgba(255,255,255,0.07) !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
     border-radius: var(--radius-md) !important;
-    color: var(--ink-1) !important;
+    color: var(--cream) !important;
     font-family: var(--font-mono) !important;
     font-size: 0.9rem !important;
-    letter-spacing: 0.06em !important;
+    letter-spacing: 0.08em !important;
 }
 [data-testid="stSelectbox"] > div > div:hover {
-    border-color: var(--accent) !important;
+    border-color: var(--sienna-light) !important;
+}
+[data-testid="stSelectbox"] svg { fill: var(--brown-pale) !important; }
+[data-testid="stSelectbox"] > div > div > div {
+    color: var(--cream) !important;
 }
 
-/* ─── RADIO ─── */
+/* Radio */
 [data-testid="stRadio"] > div {
     display: flex !important;
     gap: 0.6rem !important;
     flex-direction: row !important;
+    position: relative; z-index: 1;
 }
 [data-testid="stRadio"] label {
-    background: var(--parch-1) !important;
-    border: 1px solid var(--rule-mid) !important;
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
     border-radius: var(--radius-sm) !important;
     padding: 0.65rem 1rem !important;
     font-family: var(--font-body) !important;
-    font-size: 0.92rem !important;
-    color: var(--ink-3) !important;
+    font-size: 0.88rem !important;
+    color: var(--brown-pale) !important;
     cursor: pointer !important;
     transition: all 0.2s !important;
     flex: 1 !important;
     text-align: center !important;
 }
 [data-testid="stRadio"] label:hover {
-    border-color: var(--accent-soft) !important;
-    color: var(--ink-1) !important;
-    background: var(--parch-0) !important;
+    border-color: var(--sienna-light) !important;
+    color: var(--cream) !important;
+    background: rgba(255,255,255,0.1) !important;
 }
 [data-testid="stRadio"] label:has(input:checked) {
-    background: var(--accent-pale) !important;
-    border-color: var(--accent) !important;
-    color: var(--accent) !important;
+    background: var(--sienna) !important;
+    border-color: var(--sienna) !important;
+    color: var(--cream) !important;
     font-weight: 600 !important;
 }
 
-/* ─── CHECKBOX ─── */
+/* Checkbox */
 [data-testid="stCheckbox"] {
     font-family: var(--font-body) !important;
-    font-size: 0.92rem !important;
-    color: var(--ink-2) !important;
+    font-size: 0.88rem !important;
+    color: var(--brown-mid) !important;
 }
 
-/* ─── FILE UPLOADER ─── */
+/* File uploader */
 [data-testid="stFileUploader"] section {
-    background: var(--parch-1) !important;
-    border: 1px dashed var(--rule-mid) !important;
+    background: rgba(255,255,255,0.5) !important;
+    border: 1.5px dashed rgba(59,26,9,0.2) !important;
     border-radius: var(--radius-md) !important;
-    padding: 0.55rem 0.85rem !important;
-    transition: border-color 0.2s !important;
+    padding: 0.6rem 0.85rem !important;
+    transition: all 0.2s !important;
 }
 [data-testid="stFileUploader"] section:hover {
-    border-color: var(--accent-soft) !important;
-    background: var(--parch-0) !important;
+    border-color: var(--sienna) !important;
+    background: rgba(255,255,255,0.75) !important;
 }
 [data-testid="stFileUploader"] section p,
 [data-testid="stFileUploader"] section span,
 [data-testid="stFileUploader"] section small {
     font-family: var(--font-body) !important;
-    font-style: italic !important;
-    font-size: 0.82rem !important;
-    color: var(--ink-4) !important;
+    font-size: 0.8rem !important;
+    color: var(--brown-light) !important;
 }
 [data-testid="stFileUploader"] section button {
-    background: var(--parch-2) !important;
-    border: 1px solid var(--rule-mid) !important;
-    color: var(--ink-2) !important;
+    background: var(--cream-dark) !important;
+    border: 1px solid rgba(59,26,9,0.2) !important;
+    color: var(--brown-mid) !important;
     font-family: var(--font-body) !important;
-    font-size: 0.82rem !important;
+    font-size: 0.78rem !important;
     border-radius: var(--radius-sm) !important;
 }
 
-/* ─── BUTTONS ─── */
+/* Buttons */
 .stButton > button {
-    background: var(--parch-0) !important;
-    border: 1px solid var(--rule-mid) !important;
-    color: var(--ink-2) !important;
-    font-family: var(--font-display) !important;
-    font-size: 1rem !important;
+    background: var(--cream) !important;
+    border: 1px solid rgba(59,26,9,0.2) !important;
+    color: var(--espresso) !important;
+    font-family: var(--font-body) !important;
+    font-size: 0.82rem !important;
     font-weight: 600 !important;
-    letter-spacing: 0.04em !important;
-    border-radius: var(--radius-sm) !important;
-    padding: 0.7rem 1.4rem !important;
-    width: 100% !important;
-    transition: all 0.22s !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    border-radius: var(--radius-pill) !important;
+    padding: 0.65rem 1.5rem !important;
+    transition: all 0.2s !important;
     box-shadow: var(--shadow-sm) !important;
 }
 .stButton > button:hover {
-    background: var(--parch-1) !important;
-    border-color: var(--rule-strong) !important;
-    box-shadow: var(--shadow-md) !important;
+    background: var(--espresso) !important;
+    color: var(--cream) !important;
+    border-color: var(--espresso) !important;
     transform: translateY(-1px) !important;
+    box-shadow: var(--shadow-md) !important;
 }
-
-.execute-btn .stButton > button {
-    background: var(--accent) !important;
-    border-color: var(--accent) !important;
-    color: var(--parch-0) !important;
-    font-size: 1.05rem !important;
-    letter-spacing: 0.07em !important;
-    box-shadow: 0 4px 16px rgba(139,58,42,0.28) !important;
-}
-.execute-btn .stButton > button:hover {
-    background: var(--accent-soft) !important;
-    box-shadow: 0 6px 22px rgba(139,58,42,0.35) !important;
-}
-
-/* ─── DOWNLOAD BUTTON ─── */
-.stDownloadButton > button {
-    background: var(--verdant-pale) !important;
-    border: 1px solid var(--verdant-border) !important;
-    color: var(--verdant) !important;
-    font-family: var(--font-display) !important;
-    font-size: 0.95rem !important;
-    font-weight: 600 !important;
-    border-radius: var(--radius-sm) !important;
-    padding: 0.65rem 1rem !important;
+.exec-btn .stButton > button {
+    background: var(--sienna) !important;
+    border-color: var(--sienna) !important;
+    color: var(--cream) !important;
+    font-size: 0.88rem !important;
+    padding: 0.8rem 2rem !important;
+    box-shadow: 0 6px 24px rgba(196,98,42,0.4) !important;
     width: 100% !important;
+}
+.exec-btn .stButton > button:hover {
+    background: var(--sienna-light) !important;
+    border-color: var(--sienna-light) !important;
+    box-shadow: 0 8px 32px rgba(196,98,42,0.5) !important;
+}
+
+/* Download button */
+.stDownloadButton > button {
+    background: var(--frame-green) !important;
+    border-color: var(--frame-green) !important;
+    color: white !important;
+    font-family: var(--font-body) !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    border-radius: var(--radius-pill) !important;
+    padding: 0.7rem 1.5rem !important;
     transition: all 0.2s !important;
+    width: 100% !important;
 }
 .stDownloadButton > button:hover {
-    background: rgba(74,123,106,0.2) !important;
+    background: #4A8A58 !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 4px 14px rgba(74,123,106,0.2) !important;
+    box-shadow: 0 4px 16px rgba(91,158,106,0.35) !important;
 }
 
-/* ─── PROGRESS ─── */
+/* Progress */
 [data-testid="stProgress"] > div {
-    background: var(--parch-3) !important;
-    border-radius: 2px !important;
+    background: rgba(255,255,255,0.12) !important;
+    border-radius: 3px !important;
     height: 4px !important;
 }
 [data-testid="stProgress"] > div > div {
-    background: linear-gradient(90deg, var(--accent), var(--gilt-soft)) !important;
-    border-radius: 2px !important;
-    box-shadow: 0 0 8px rgba(139,58,42,0.3) !important;
+    background: linear-gradient(90deg, var(--sienna), var(--sienna-light), var(--frame-yellow)) !important;
+    border-radius: 3px !important;
+    box-shadow: 0 0 10px rgba(196,98,42,0.4) !important;
 }
 
-/* ─── NATIVE ALERTS ─── */
+/* Native alerts */
 [data-testid="stAlert"] {
-    background: var(--verdant-pale) !important;
-    border: 1px solid var(--verdant-border) !important;
-    border-radius: var(--radius-md) !important;
     font-family: var(--font-body) !important;
-    font-style: italic !important;
-    color: var(--verdant) !important;
+    font-size: 0.85rem !important;
+    border-radius: var(--radius-md) !important;
 }
 
-/* ─── METRICS ─── */
-.m-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin: 1.25rem 0;
-}
-.m-cell {
-    background: var(--parch-0);
-    border: 1px solid var(--rule-mid);
-    border-radius: var(--radius-md);
-    padding: 1.25rem 1rem;
-    text-align: center;
-    box-shadow: var(--shadow-sm);
-    position: relative;
-    overflow: hidden;
-}
-.m-cell::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 15%; right: 15%;
-    height: 1px;
-    background: var(--rule-mid);
-}
-.m-number {
-    font-family: var(--font-display);
-    font-size: 2.8rem;
-    font-weight: 600;
-    color: var(--accent);
-    line-height: 1;
-    margin-bottom: 0.3rem;
-    letter-spacing: -0.02em;
-}
-.m-label {
-    font-family: var(--font-fell);
-    font-style: italic;
-    font-size: 0.88rem;
-    color: var(--ink-4);
+/* Expander */
+.streamlit-expanderHeader {
+    font-family: var(--font-body) !important;
+    font-size: 0.85rem !important;
+    color: var(--brown-mid) !important;
+    background: var(--cream-dark) !important;
 }
 
-/* ─── RESULT BANNER ─── */
-.result-wrap {
-    background: var(--parch-0);
-    border: 1px solid var(--rule-mid);
-    border-radius: var(--radius-xl);
-    padding: 2rem 2.25rem;
-    margin-bottom: 1.75rem;
-    box-shadow: var(--shadow-lg);
-    position: relative;
-    overflow: hidden;
-    animation: fadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+/* ══════════════════════════════════
+   HISTORY STRIP
+══════════════════════════════════ */
+.history-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-top: 1.5rem;
+    position: relative; z-index: 1;
 }
-.result-wrap::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg,
-        transparent, var(--rule-mid) 20%,
-        var(--gilt) 50%,
-        var(--rule-mid) 80%, transparent
-    );
-}
-.rw-title {
-    font-family: var(--font-display);
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: var(--ink-0);
-    margin-bottom: 0.2rem;
-    letter-spacing: -0.01em;
-}
-.rw-title em { color: var(--accent); font-style: italic; }
-.rw-sub {
-    font-family: var(--font-fell);
-    font-style: italic;
-    font-size: 0.95rem;
-    color: var(--ink-4);
-}
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ─── HISTORY ─── */
-.hist-entry {
-    background: var(--parch-0);
-    border: 1px solid var(--rule-light);
-    border-radius: var(--radius-sm);
-    padding: 0.75rem 1.1rem;
-    margin-bottom: 0.55rem;
+.hist-pill {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    transition: border-color 0.2s;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius-pill);
+    padding: 0.55rem 1rem;
 }
-.hist-entry:hover { border-color: var(--rule-mid); }
-.he-time {
+.hp-left {
     font-family: var(--font-mono);
-    font-size: 0.74rem;
-    color: var(--ink-2);
-    font-weight: 700;
+    font-size: 0.7rem;
+    color: var(--brown-pale);
 }
-.he-info {
+.hp-time { font-weight: 700; color: var(--cream); margin-right: 0.5rem; }
+.hp-badge {
     font-family: var(--font-body);
-    font-style: italic;
-    font-size: 0.83rem;
-    color: var(--ink-4);
-    margin-top: 1px;
-}
-.he-badge {
-    font-family: var(--font-mono);
-    font-size: 0.63rem;
+    font-size: 0.62rem;
+    font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    padding: 0.22rem 0.55rem;
-    border-radius: 3px;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-pill);
 }
-.he-ok  { color: var(--verdant); background: var(--verdant-pale); border: 1px solid var(--verdant-border); }
-.he-err { color: var(--accent);  background: var(--accent-pale);  border: 1px solid var(--accent-border); }
+.hp-ok  { color: #8EC49A; background: rgba(91,158,106,0.2); }
+.hp-err { color: #E0A880; background: rgba(196,98,42,0.2); }
 
-/* ─── PROGRESS STATUS ─── */
+/* ══════════════════════════════════
+   RESULTS SECTION
+══════════════════════════════════ */
+.results-banner {
+    background: var(--cream-dark);
+    border: 1px solid rgba(59,26,9,0.12);
+    border-radius: var(--radius-lg);
+    padding: 2rem 2.5rem;
+    margin: 2rem 2.5rem 0;
+    box-shadow: var(--shadow-md);
+    animation: fadeInUp 0.4s ease both;
+    position: relative;
+    overflow: hidden;
+}
+.results-banner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--frame-green), var(--frame-yellow), var(--frame-orange));
+}
+.rb-script {
+    font-family: var(--font-script);
+    font-size: 1.4rem;
+    color: var(--sienna);
+    display: block;
+    margin-bottom: 0.1rem;
+}
+.rb-title {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    color: var(--espresso);
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+}
+.metrics-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+.metric-tile {
+    background: var(--cream);
+    border: 1px solid rgba(59,26,9,0.1);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+.mt-num {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    color: var(--sienna);
+    line-height: 1;
+    margin-bottom: 0.35rem;
+}
+.mt-label {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brown-light);
+}
+
+/* ══════════════════════════════════
+   PROGRESS STATUS
+══════════════════════════════════ */
 .prog-status {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--accent);
+    font-size: 0.78rem;
+    color: var(--sienna-light);
     text-align: center;
     padding: 0.4rem;
     letter-spacing: 0.08em;
@@ -669,271 +738,310 @@ html, body,
     justify-content: space-between;
     font-family: var(--font-mono);
     font-size: 0.68rem;
-    color: var(--ink-5);
-    margin-top: 0.25rem;
+    color: var(--brown-light);
+    margin-top: 0.3rem;
 }
 
-/* ─── SETTINGS ─── */
-.settings-panel {
-    background: var(--parch-0);
-    border: 1px solid var(--rule-mid);
+/* SETTINGS PANEL */
+.settings-wrap {
+    background: var(--cream-dark);
+    border: 1px solid rgba(59,26,9,0.12);
     border-radius: var(--radius-lg);
-    padding: 1.5rem 1.75rem;
-    margin-bottom: 1.75rem;
+    padding: 1.5rem 2rem;
+    margin: 0 2.5rem 1.5rem;
     box-shadow: var(--shadow-sm);
 }
 
-/* ─── EXPANDER ─── */
-.streamlit-expanderHeader {
-    font-family: var(--font-body) !important;
-    font-style: italic !important;
-    font-size: 0.88rem !important;
-    color: var(--ink-3) !important;
-    background: var(--parch-1) !important;
-    border-radius: var(--radius-sm) !important;
+/* DOWNLOAD CARD */
+.dl-card {
+    background: var(--cream-dark);
+    border: 1px solid rgba(59,26,9,0.12);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
 }
-.streamlit-expanderContent {
-    background: var(--parch-1) !important;
-    border: 1px solid var(--rule-light) !important;
-    font-family: var(--font-body) !important;
+.dl-title {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--espresso);
+    margin-bottom: 1rem;
 }
 
-/* ─── RESPONSIVE ─── */
-@media (max-width: 960px) {
-    .block-container { padding: 1rem 1.25rem !important; }
-    .lh-title { font-size: 2.4rem; }
-    .m-grid { grid-template-columns: repeat(3, 1fr); }
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .cards-grid { grid-template-columns: 1fr; padding: 0 1.25rem; }
+    .hv-nav { padding: 0 1.25rem; }
+    .hv-hero { padding: 2.5rem 1.25rem 2rem; }
+    .hv-section-row, .config-wrap { padding: 0 1.25rem; }
+    .metrics-row { grid-template-columns: repeat(3, 1fr); }
+    .results-banner { margin: 1.5rem 1.25rem 0; }
+    .settings-wrap { margin: 0 1.25rem 1.5rem; }
 }
 @media (max-width: 640px) {
-    .lh-title { font-size: 1.9rem; }
-    .m-grid { grid-template-columns: 1fr; }
-    .m-number { font-size: 2.2rem; }
+    .hero-title { font-size: 2.4rem; }
+    .metrics-row { grid-template-columns: 1fr; }
+    .mt-num { font-size: 2.4rem; }
+    [data-testid="stRadio"] > div { flex-direction: column !important; }
 }
 """
 
 st.markdown(f"<style>{THEME}</style>", unsafe_allow_html=True)
 
-# ═══════════ HELPER: VALIDATE ═══════════
+# ═══════════ HELPER ═══════════
 def validate_file(file, file_type):
     try:
         wb = load_workbook(file)
         ws = wb.active
-        rows = ws.max_row
-        cols = ws.max_column
+        rows = ws.max_row; cols = ws.max_column
         header_row = 7 if file_type in ["job", "einv"] else 3
         headers = []
-        for col in range(1, min(cols + 1, 20)):
-            val = ws.cell(header_row, col).value
-            if val:
-                headers.append(str(val).strip())
-        return {
-            "valid": True, "rows": rows, "cols": cols,
-            "headers": headers,
-            "sheets": wb.sheetnames if file_type == "bill" else None
-        }
+        for c in range(1, min(cols + 1, 20)):
+            v = ws.cell(header_row, c).value
+            if v: headers.append(str(v).strip())
+        return {"valid": True, "rows": rows, "cols": cols, "headers": headers,
+                "sheets": wb.sheetnames if file_type == "bill" else None}
     except Exception as e:
         return {"valid": False, "error": str(e)}
 
-# ═══════════ HEADER ═══════════
+MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]
+
+# ═══════════ NAV ═══════════
 st.markdown("""
-<div class="ledger-header">
-    <span class="lh-ornament">❧ &nbsp; &nbsp; ❧</span>
-    <div class="lh-double-rule"></div>
-    <h1 class="lh-title">The Bill Report <em>Ledger</em></h1>
-    <p class="lh-subtitle">Automated reconciliation of invoices, jobs &amp; billing records</p>
-    <div class="lh-double-rule"></div>
-    <div class="lh-meta">Est. Automation System &nbsp;·&nbsp; Report Processing Suite</div>
+<div class="hv-nav">
+    <div class="nav-left">
+        <span class="nav-link">Documents</span>
+        <span class="nav-link">History</span>
+        <span class="nav-link">Settings</span>
+    </div>
+    <div class="nav-wordmark">
+        <span class="nav-wordmark-icon">✦</span>
+        BILLFLOW
+    </div>
+    <div class="nav-right">
+        <span class="nav-link">Reports</span>
+        <span class="nav-link">Export</span>
+        <span class="nav-pill">Process Now</span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
-# Settings toggle row
-tog1, tog2 = st.columns([6, 1])
-with tog2:
-    stlbl = "⚙ Settings" if not st.session_state.show_settings else "✕ Close"
-    if st.button(stlbl, key="settings_tog"):
-        st.session_state.show_settings = not st.session_state.show_settings
+# ═══════════ HERO ═══════════
+st.markdown("""
+<div class="hv-hero">
+    <span class="hero-script">Seamless & Smart</span>
+    <h1 class="hero-title">AUTOMATE YOUR<br><em>Bill Reports</em></h1>
+    <p class="hero-sub">Upload · Reconcile · Export &nbsp;—&nbsp; in seconds</p>
+    <div class="hero-cta-row">
+        <div class="hero-btn">
+            Get Started
+            <span class="hero-btn-arrow">↗</span>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-# ═══════════ SETTINGS ═══════════
+# Settings toggle
+sc1, sc2 = st.columns([8, 1])
+with sc2:
+    st.markdown("<div style='padding:1rem 2.5rem 0 0; text-align:right;'>", unsafe_allow_html=True)
+    if st.button("⚙ Settings" if not st.session_state.show_settings else "✕ Close", key="stog"):
+        st.session_state.show_settings = not st.session_state.show_settings
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# Settings panel
 if st.session_state.show_settings:
-    st.markdown('<div class="settings-panel">', unsafe_allow_html=True)
-    s1, s2 = st.columns(2, gap="large")
-    with s1:
-        st.markdown('<span class="conf-label">File Preview</span>', unsafe_allow_html=True)
-        show_prev = st.checkbox("Show file statistics after upload", value=st.session_state.show_preview, key="prev_chk")
-        st.session_state.show_preview = show_prev
-    with s2:
-        st.markdown('<span class="conf-label">Processing History</span>', unsafe_allow_html=True)
-        if st.button("Clear History", key="clr_hist"):
+    st.markdown('<div class="settings-wrap">', unsafe_allow_html=True)
+    sa, sb = st.columns(2, gap="large")
+    with sa:
+        st.markdown('<span style="font-family:var(--font-serif);font-style:italic;font-size:1rem;color:var(--espresso);">File Preview</span>', unsafe_allow_html=True)
+        sp = st.checkbox("Show file statistics after upload", value=st.session_state.show_preview, key="prev_chk")
+        st.session_state.show_preview = sp
+    with sb:
+        st.markdown('<span style="font-family:var(--font-serif);font-style:italic;font-size:1rem;color:var(--espresso);">Processing History</span>', unsafe_allow_html=True)
+        if st.button("Clear History", key="clr"):
             st.session_state.processing_history = []
             st.success("History cleared.")
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ═══════════ MAIN COLUMNS ═══════════
-MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]
+# ═══════════ SECTION TITLE ═══════════
+st.markdown("""
+<div class="hv-section-row">
+    <span class="hv-section-title">Documents &amp; intake</span>
+    <div class="hv-section-rule"></div>
+    <span class="hv-section-tag">Step 01</span>
+</div>
+""", unsafe_allow_html=True)
 
-left_col, right_col = st.columns([3, 2], gap="large")
+# ═══════════ UPLOAD CARDS ═══════════
+st.markdown('<div class="cards-grid">', unsafe_allow_html=True)
 
-# ─────────── LEFT: DOCUMENT INTAKE ───────────
-with left_col:
-    st.markdown('<div class="sect-heading"><span>I</span> Document Intake</div>', unsafe_allow_html=True)
-    st.markdown('<div class="v-card">', unsafe_allow_html=True)
+# Card 1 — Bill Report (green frame)
+st.markdown("""
+<div class="upload-card card-green">
+    <div class="card-frame-top"></div>
+    <div class="card-body">
+        <div class="card-badge">01 &nbsp;·&nbsp; Primary Register</div>
+        <div class="card-title">Bill Report</div>
+        <div class="card-desc">Main billing workbook with monthly tabs — the master ledger into which data is written.</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)  # close grid temporarily for file uploaders
 
-    # Bill Report
+# Re-open with actual columns for uploaders
+col1, col2, col3 = st.columns(3, gap="medium")
+
+with col1:
     st.markdown("""
-    <div class="upload-entry">
-        <div class="ue-row">
-            <span class="ue-numeral">I</span>
-            <span class="ue-title">Bill Report</span>
+    <div style="padding: 0 2.5rem 0 2.5rem; margin-top:-2rem;">
+        <div class="upload-card card-green" style="padding:0;">
+            <div class="card-frame-top"></div>
+            <div class="card-body">
+                <div class="card-badge">01 &nbsp;·&nbsp; Primary Register</div>
+                <div class="card-title">Bill Report</div>
+                <div class="card-desc">Main billing workbook with monthly tabs — the master ledger.</div>
+            </div>
         </div>
-        <div class="ue-desc">Primary billing register — Excel workbook containing monthly ledger sheets</div>
     </div>
     """, unsafe_allow_html=True)
     bill_file = st.file_uploader("", type="xlsx", key="bill", label_visibility="collapsed")
     if bill_file:
-        st.markdown('<div class="file-loaded">✦ Document Received</div>', unsafe_allow_html=True)
+        st.markdown('<div class="card-loaded" style="color:#5B9E6A;background:rgba(91,158,106,0.1);border:1px solid rgba(91,158,106,0.25);display:inline-flex;align-items:center;gap:0.4rem;font-family:var(--font-body);font-size:0.72rem;font-weight:600;letter-spacing:0.08em;padding:0.3rem 0.8rem;border-radius:50px;">✓ Document Loaded</div>', unsafe_allow_html=True)
         if st.session_state.show_preview:
             v = validate_file(bill_file, "bill")
             if v["valid"]:
-                st.markdown(f"""
-                <div class="preview-ledger">
-                    <div class="pl-row"><span>Total Rows</span><span class="pl-val">{v['rows']}</span></div>
-                    <div class="pl-row"><span>Columns</span><span class="pl-val">{v['cols']}</span></div>
-                    <div class="pl-row"><span>Sheets</span><span class="pl-val">{len(v['sheets'])}</span></div>
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(f'<div class="preview-mini"><div class="pm-row"><span>Rows</span><span class="pm-val">{v["rows"]}</span></div><div class="pm-row"><span>Columns</span><span class="pm-val">{v["cols"]}</span></div><div class="pm-row"><span>Sheets</span><span class="pm-val">{len(v["sheets"])}</span></div></div>', unsafe_allow_html=True)
             bill_file.seek(0)
 
-    st.markdown('<div class="orn-divider">✦</div>', unsafe_allow_html=True)
-
-    # Job Report
+with col2:
     st.markdown("""
-    <div class="upload-entry">
-        <div class="ue-row">
-            <span class="ue-numeral">II</span>
-            <span class="ue-title">Job Report</span>
+    <div style="padding: 0;">
+        <div class="upload-card card-orange" style="padding:0;">
+            <div class="card-frame-top"></div>
+            <div class="card-body">
+                <div class="card-badge">02 &nbsp;·&nbsp; Job Register</div>
+                <div class="card-title">Job Report</div>
+                <div class="card-desc">Shipper details, container numbers, invoice refs and SB/BE tracking data.</div>
+            </div>
         </div>
-        <div class="ue-desc">Job particulars — shipper names, container numbers &amp; invoice references</div>
     </div>
     """, unsafe_allow_html=True)
     job_file = st.file_uploader("", type="xlsx", key="job", label_visibility="collapsed")
     if job_file:
-        st.markdown('<div class="file-loaded">✦ Document Received</div>', unsafe_allow_html=True)
+        st.markdown('<div style="color:#D4733A;background:rgba(212,115,58,0.1);border:1px solid rgba(212,115,58,0.25);display:inline-flex;align-items:center;gap:0.4rem;font-family:var(--font-body);font-size:0.72rem;font-weight:600;letter-spacing:0.08em;padding:0.3rem 0.8rem;border-radius:50px;">✓ Document Loaded</div>', unsafe_allow_html=True)
         if st.session_state.show_preview:
             v = validate_file(job_file, "job")
             if v["valid"]:
-                st.markdown(f"""
-                <div class="preview-ledger">
-                    <div class="pl-row"><span>Total Rows</span><span class="pl-val">{v['rows']}</span></div>
-                    <div class="pl-row"><span>Columns</span><span class="pl-val">{v['cols']}</span></div>
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(f'<div class="preview-mini"><div class="pm-row"><span>Rows</span><span class="pm-val">{v["rows"]}</span></div><div class="pm-row"><span>Columns</span><span class="pm-val">{v["cols"]}</span></div></div>', unsafe_allow_html=True)
             job_file.seek(0)
 
-    st.markdown('<div class="orn-divider">✦</div>', unsafe_allow_html=True)
-
-    # E-Invoice
+with col3:
     st.markdown("""
-    <div class="upload-entry">
-        <div class="ue-row">
-            <span class="ue-numeral">III</span>
-            <span class="ue-title">E-Invoice Report</span>
+    <div style="padding: 0;">
+        <div class="upload-card card-yellow" style="padding:0;">
+            <div class="card-frame-top"></div>
+            <div class="card-body">
+                <div class="card-badge">03 &nbsp;·&nbsp; Invoice Data</div>
+                <div class="card-title">E-Invoice Report</div>
+                <div class="card-desc">Electronic invoice records — bill numbers and issuance dates by job.</div>
+            </div>
         </div>
-        <div class="ue-desc">Electronic invoice register — bill numbers, issuance dates &amp; job correspondence</div>
     </div>
     """, unsafe_allow_html=True)
     einv_file = st.file_uploader("", type="xlsx", key="einv", label_visibility="collapsed")
     if einv_file:
-        st.markdown('<div class="file-loaded">✦ Document Received</div>', unsafe_allow_html=True)
+        st.markdown('<div style="color:#C8A82A;background:rgba(200,168,42,0.1);border:1px solid rgba(200,168,42,0.25);display:inline-flex;align-items:center;gap:0.4rem;font-family:var(--font-body);font-size:0.72rem;font-weight:600;letter-spacing:0.08em;padding:0.3rem 0.8rem;border-radius:50px;">✓ Document Loaded</div>', unsafe_allow_html=True)
         if st.session_state.show_preview:
             v = validate_file(einv_file, "einv")
             if v["valid"]:
-                st.markdown(f"""
-                <div class="preview-ledger">
-                    <div class="pl-row"><span>Total Rows</span><span class="pl-val">{v['rows']}</span></div>
-                    <div class="pl-row"><span>Columns</span><span class="pl-val">{v['cols']}</span></div>
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(f'<div class="preview-mini"><div class="pm-row"><span>Rows</span><span class="pm-val">{v["rows"]}</span></div><div class="pm-row"><span>Columns</span><span class="pm-val">{v["cols"]}</span></div></div>', unsafe_allow_html=True)
             einv_file.seek(0)
 
-    st.markdown('</div>', unsafe_allow_html=True)
+# ═══════════ CONFIG SECTION ═══════════
+st.markdown("""
+<div class="hv-section-row" style="margin-top:2.5rem;">
+    <span class="hv-section-title">Configure &amp; run</span>
+    <div class="hv-section-rule"></div>
+    <span class="hv-section-tag">Step 02</span>
+</div>
+""", unsafe_allow_html=True)
 
-# ─────────── RIGHT: CONFIGURATION ───────────
-with right_col:
-    st.markdown('<div class="sect-heading"><span>II</span> Configuration</div>', unsafe_allow_html=True)
-    st.markdown('<div class="v-card">', unsafe_allow_html=True)
+st.markdown('<div class="config-wrap">', unsafe_allow_html=True)
+cfg_left, cfg_right = st.columns([3, 1], gap="large")
 
-    st.markdown('<span class="conf-label">Billing Period</span>', unsafe_allow_html=True)
-    month = st.selectbox("", MONTHS, index=st.session_state.selected_month,
-                         label_visibility="collapsed", key="month_sel")
-    st.session_state.selected_month = MONTHS.index(month)
+with cfg_left:
+    st.markdown('<div class="config-card">', unsafe_allow_html=True)
+    st.markdown('<span class="config-script">Ready to process</span>', unsafe_allow_html=True)
+    st.markdown('<div class="config-title">Set your<br>parameters</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="orn-divider">· · ·</div>', unsafe_allow_html=True)
+    cl1, cl2 = st.columns(2, gap="large")
+    with cl1:
+        st.markdown('<span class="config-label">Billing Month</span>', unsafe_allow_html=True)
+        month = st.selectbox("", MONTHS, index=st.session_state.selected_month,
+                             label_visibility="collapsed", key="month_sel")
+        st.session_state.selected_month = MONTHS.index(month)
+    with cl2:
+        st.markdown('<span class="config-label">Update Mode</span>', unsafe_allow_html=True)
+        update_mode = st.radio("", ["Append", "Overwrite"],
+                               label_visibility="collapsed", key="umode")
 
-    st.markdown('<span class="conf-label">Update Mode</span>', unsafe_allow_html=True)
-    update_mode = st.radio("", ["Append", "Overwrite"],
-                           label_visibility="collapsed", key="umode")
     if update_mode == "Append":
-        st.markdown('<div class="v-alert-info">New entries shall be appended to the existing record without disturbing prior data.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="mode-note mode-note-green">New job entries will be appended — existing records remain untouched.</div>', unsafe_allow_html=True)
     else:
-        st.markdown('<div class="v-alert-warn">All existing entries in the selected month shall be expunged and replaced anew.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="mode-note mode-note-warn">All existing entries for this month will be cleared and replaced.</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="orn-divider">· · ·</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="execute-btn">', unsafe_allow_html=True)
+    st.markdown('<div class="config-divider"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="exec-btn">', unsafe_allow_html=True)
     process_clicked = st.button("✦  Execute Report Generation", key="proc_main", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
-
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # Activity log
+with cfg_right:
     if st.session_state.processing_history:
-        st.markdown("<br/>", unsafe_allow_html=True)
-        st.markdown('<div class="sect-heading"><span>III</span> Activity Log</div>', unsafe_allow_html=True)
-        st.markdown('<div class="v-card">', unsafe_allow_html=True)
+        st.markdown("""
+        <div style="background:var(--espresso);border-radius:var(--radius-lg);padding:1.5rem 1.25rem;box-shadow:var(--shadow-lg);">
+            <span style="font-family:var(--font-script);font-size:1.1rem;color:var(--sienna-light);display:block;margin-bottom:0.2rem;">Recent</span>
+            <div style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:1rem;">Activity</div>
+        """, unsafe_allow_html=True)
         for entry in reversed(st.session_state.processing_history[-4:]):
-            badge = "he-ok" if entry["status"] == "success" else "he-err"
-            mark  = "DONE"  if entry["status"] == "success" else "ERR"
+            bc = "hp-ok" if entry["status"] == "success" else "hp-err"
+            bm = "OK" if entry["status"] == "success" else "ERR"
             st.markdown(f"""
-            <div class="hist-entry">
-                <div>
-                    <div class="he-time">{entry["time"]} &nbsp;·&nbsp; {entry["month"]}</div>
-                    <div class="he-info">+{entry['added']} added &nbsp;·&nbsp; {entry['skipped']} skipped &nbsp;·&nbsp; {entry.get('duration','—')}</div>
+            <div class="hist-pill">
+                <div class="hp-left">
+                    <span class="hp-time">{entry["time"]}</span>
+                    {entry["month"]} · +{entry["added"]}
                 </div>
-                <div class="he-badge {badge}">{mark}</div>
+                <div class="hp-badge {bc}">{bm}</div>
             </div>
             """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
+st.markdown('</div>', unsafe_allow_html=True)
+
 # ═══════════ PROCESSING CONSTANTS ═══════════
-BILL_HEADER_ROW = 3
-BILL_DATA_START = 4
-SRC_HEADER_ROW  = 7
-SRC_DATA_START  = 8
+BILL_HEADER_ROW = 3; BILL_DATA_START = 4
+SRC_HEADER_ROW  = 7; SRC_DATA_START  = 8
 
-# ═══════════ HELPERS ═══════════
-def norm(x):
-    return str(x).strip().upper() if x else ""
-
-def clean_job(job):
-    return norm(job).split("/")[0]
+def norm(x): return str(x).strip().upper() if x else ""
+def clean_job(job): return norm(job).split("/")[0]
 
 def parse_date(date_val):
     if not date_val: return None
     if isinstance(date_val, datetime): return date_val.date()
-    date_str = str(date_val).strip()
-    if not date_str or date_str.upper() == 'NONE': return None
+    ds = str(date_val).strip()
+    if not ds or ds.upper() == 'NONE': return None
     for fmt in ['%Y-%m-%d','%d-%m-%Y','%d/%m/%Y','%m/%d/%Y','%d.%m.%Y',
                 '%Y/%m/%d','%d-%b-%Y','%d %b %Y','%d-%m-%y','%d/%m/%y']:
-        try:
-            return datetime.strptime(date_str, fmt).date()
-        except (ValueError, TypeError):
-            continue
+        try: return datetime.strptime(ds, fmt).date()
+        except: continue
     return None
 
-def format_date_for_excel(date_val):
-    if not date_val: return None
-    if isinstance(date_val, datetime): return date_val.strftime('%d/%m/%y')
-    try: return date_val.strftime('%d/%m/%y')
+def format_date_for_excel(d):
+    if not d: return None
+    if isinstance(d, datetime): return d.strftime('%d/%m/%y')
+    try: return d.strftime('%d/%m/%y')
     except: return None
 
 def col_map(ws, header_row):
@@ -943,12 +1051,12 @@ def col_map(ws, header_row):
         if v: m[norm(v)] = c
     return m
 
-def get_existing_jobs(ws, bill_cols, start_row):
-    existing = set()
+def get_existing_jobs(ws, bc, start_row):
+    ex = set()
     for r in range(start_row, ws.max_row + 1):
-        j = ws.cell(r, bill_cols["JOB NO"]).value
-        if j: existing.add(clean_job(j))
-    return existing
+        j = ws.cell(r, bc["JOB NO"]).value
+        if j: ex.add(clean_job(j))
+    return ex
 
 def find_next_empty_row(ws, start_row):
     for r in range(start_row, ws.max_row + 100):
@@ -958,58 +1066,47 @@ def find_next_empty_row(ws, start_row):
 # ═══════════ PROCESSING ═══════════
 if process_clicked:
     if not (bill_file and job_file and einv_file):
-        st.error("Please furnish all three documents before proceeding.")
+        st.error("Please upload all three documents before running.")
     else:
-        progress_bar = st.progress(0)
-        status_el    = st.empty()
-        detail_el    = st.empty()
-        start_time   = datetime.now()
+        pb = st.progress(0); se = st.empty(); de = st.empty()
+        t0 = datetime.now()
 
-        def upd(pct, msg, det=""):
-            progress_bar.progress(pct)
-            status_el.markdown(f'<div class="prog-status">{msg}</div>', unsafe_allow_html=True)
+        def upd(p, msg, det=""):
+            pb.progress(p)
+            se.markdown(f'<div class="prog-status">{msg}</div>', unsafe_allow_html=True)
             if det:
-                detail_el.markdown(
-                    f'<div class="prog-detail"><span>{det}</span><span>{pct}%</span></div>',
-                    unsafe_allow_html=True
-                )
+                de.markdown(f'<div class="prog-detail"><span>{det}</span><span>{p}%</span></div>', unsafe_allow_html=True)
 
         try:
-            upd(10, "Loading workbooks…", "Reading Excel documents")
+            upd(10, "Loading workbooks…", "Reading Excel files")
             bill_wb = load_workbook(bill_file)
             job_wb  = load_workbook(job_file)
             einv_wb = load_workbook(einv_file)
 
-            upd(25, "Locating sheets…", "Verifying month tab")
+            upd(25, "Locating sheets…", "Checking month tab")
             if month not in bill_wb.sheetnames:
-                st.error(f"The sheet '{month}' was not found in the Bill Report.")
-                st.stop()
+                st.error(f"Sheet '{month}' not found in Bill Report."); st.stop()
 
-            bill_ws = bill_wb[month]
-            job_ws  = job_wb.active
-            einv_ws = einv_wb.active
+            bill_ws = bill_wb[month]; job_ws = job_wb.active; einv_ws = einv_wb.active
 
-            upd(35, "Mapping columns…", "Analysing header rows")
+            upd(35, "Mapping columns…", "Analysing headers")
             bill_cols = col_map(bill_ws, BILL_HEADER_ROW)
             job_cols  = col_map(job_ws,  SRC_HEADER_ROW)
             einv_cols = col_map(einv_ws, SRC_HEADER_ROW)
 
-            upd(45, "Validating structure…", "Checking required fields")
+            upd(45, "Validating…", "Checking required fields")
             for col in ["JOB NO","JOB DATE","SHIPPER NAME","INVOICE NO","SB / BE NO","CONTAINER NO"]:
-                if col not in job_cols:
-                    st.error(f"Column absent in Job Report: {col}"); st.stop()
+                if col not in job_cols: st.error(f"Missing in Job Report: {col}"); st.stop()
             for col in ["JOB NO","BILL NO","BILL DATE"]:
-                if col not in einv_cols:
-                    st.error(f"Column absent in E-Invoice: {col}"); st.stop()
+                if col not in einv_cols: st.error(f"Missing in E-Invoice: {col}"); st.stop()
             for col in ["JOB NO","JOB DATE","PARTY NAME","INVOICE NO","SB / BE NO","CONTAINER NO","BILL NO","BILL DATE"]:
-                if col not in bill_cols:
-                    st.error(f"Column absent in Bill Report: {col}"); st.stop()
+                if col not in bill_cols: st.error(f"Missing in Bill Report: {col}"); st.stop()
 
             append_mode = update_mode == "Append"
             existing_jobs = set()
 
             if append_mode:
-                upd(55, "Scanning existing entries…", "Checking for duplicates")
+                upd(55, "Scanning existing entries…", "Checking duplicates")
                 existing_jobs = get_existing_jobs(bill_ws, bill_cols, BILL_DATA_START)
                 row = find_next_empty_row(bill_ws, BILL_DATA_START)
                 last_sr = 0
@@ -1018,13 +1115,12 @@ if process_clicked:
                     if sv and isinstance(sv, (int, float)): last_sr = max(last_sr, int(sv))
                 sr = last_sr + 1
             else:
-                upd(55, "Clearing ledger sheet…", "Preparing for fresh entries")
+                upd(55, "Clearing sheet…", "Preparing fresh data")
                 for r in range(BILL_DATA_START, bill_ws.max_row + 1):
-                    for c in range(1, bill_ws.max_column + 1):
-                        bill_ws.cell(r, c).value = None
+                    for c in range(1, bill_ws.max_column + 1): bill_ws.cell(r, c).value = None
                 row = BILL_DATA_START; sr = 1
 
-            upd(65, "Reading job register…", "Parsing job entries")
+            upd(65, "Reading job register…", "Parsing entries")
             jobs = {}
             for r in range(SRC_DATA_START, job_ws.max_row + 1):
                 raw = job_ws.cell(r, job_cols["JOB NO"]).value
@@ -1039,16 +1135,15 @@ if process_clicked:
                     "CONTAINER NO":job_ws.cell(r, job_cols["CONTAINER NO"]).value,
                 }
 
-            upd(78, "Reading invoice register…", "Parsing bill entries")
+            upd(78, "Reading invoice register…", "Parsing bills")
             bill_map = defaultdict(list)
             for r in range(SRC_DATA_START, einv_ws.max_row + 1):
-                raw   = einv_ws.cell(r, einv_cols["JOB NO"]).value
-                bno   = einv_ws.cell(r, einv_cols["BILL NO"]).value
-                bdate = parse_date(einv_ws.cell(r, einv_cols["BILL DATE"]).value)
-                if raw and bno:
-                    bill_map[clean_job(raw)].append((str(bno), bdate))
+                raw = einv_ws.cell(r, einv_cols["JOB NO"]).value
+                bno = einv_ws.cell(r, einv_cols["BILL NO"]).value
+                bd  = parse_date(einv_ws.cell(r, einv_cols["BILL DATE"]).value)
+                if raw and bno: bill_map[clean_job(raw)].append((str(bno), bd))
 
-            upd(88, "Composing final report…", "Writing consolidated entries")
+            upd(88, "Writing report…", "Generating output")
             added = 0; skipped = 0
 
             for jn, data in jobs.items():
@@ -1066,86 +1161,76 @@ if process_clicked:
                         merged = bills[0][0]
                     else:
                         fb = str(bills[0][0])
-                        main, suffix = (fb.rsplit("/",1)[0], "/"+fb.rsplit("/",1)[1]) if "/" in fb else (fb, "")
+                        main, suf = (fb.rsplit("/",1)[0], "/"+fb.rsplit("/",1)[1]) if "/" in fb else (fb, "")
                         extra = []
                         for i in range(1, len(bills)):
                             bn = str(bills[i][0])
                             if "/" in bn: bn = bn.split("/")[0]
                             extra.append(bn[-4:] if len(bn) >= 4 else bn)
-                        merged = main + "/" + "/".join(extra) + suffix
+                        merged = main + "/" + "/".join(extra) + suf
                     vd = [b[1] for b in bills if b[1]]
                     ld = max(vd) if vd else None
                     bill_ws.cell(row, bill_cols["BILL NO"]).value   = merged
                     bill_ws.cell(row, bill_cols["BILL DATE"]).value = format_date_for_excel(ld)
                 row += 1; sr += 1; added += 1
 
-            upd(96, "Committing to file…", "Saving workbook")
+            upd(96, "Saving file…", "Writing to disk")
             out = f"UPDATED_BILL_REPORT_{month}.xlsx"
             bill_wb.save(out)
-            progress_bar.progress(100)
-
-            end_time = datetime.now()
-            duration = (end_time - start_time).total_seconds()
-
-            status_el.empty(); detail_el.empty(); progress_bar.empty()
+            pb.progress(100)
+            t1 = datetime.now(); dur = (t1 - t0).total_seconds()
+            se.empty(); de.empty(); pb.empty()
 
             st.session_state.processing_history.append({
-                "time": end_time.strftime("%H:%M:%S"), "month": month,
+                "time": t1.strftime("%H:%M:%S"), "month": month,
                 "status": "success", "added": added, "skipped": skipped,
-                "duration": f"{duration:.1f}s"
+                "duration": f"{dur:.1f}s"
             })
 
-            r1, r2 = st.columns([3, 1], gap="large")
-
-            with r1:
-                st.markdown(f"""
-                <div class="result-wrap">
-                    <div class="rw-title">Report <em>Complete</em></div>
-                    <div class="rw-sub">Processed in {duration:.1f} seconds &nbsp;·&nbsp; {month} ledger updated</div>
-                    <div class="m-grid">
-                        <div class="m-cell">
-                            <div class="m-number">{added}</div>
-                            <div class="m-label">Entries Added</div>
-                        </div>
-                        <div class="m-cell">
-                            <div class="m-number">{skipped}</div>
-                            <div class="m-label">Skipped</div>
-                        </div>
-                        <div class="m-cell">
-                            <div class="m-number">{added + skipped}</div>
-                            <div class="m-label">Total Examined</div>
-                        </div>
+            # Results
+            st.markdown(f"""
+            <div class="results-banner">
+                <span class="rb-script">All done!</span>
+                <div class="rb-title">REPORT<br>GENERATED</div>
+                <div class="metrics-row">
+                    <div class="metric-tile">
+                        <div class="mt-num">{added}</div>
+                        <div class="mt-label">Entries Added</div>
+                    </div>
+                    <div class="metric-tile">
+                        <div class="mt-num">{skipped}</div>
+                        <div class="mt-label">Skipped</div>
+                    </div>
+                    <div class="metric-tile">
+                        <div class="mt-num">{dur:.1f}s</div>
+                        <div class="mt-label">Duration</div>
                     </div>
                 </div>
-                """, unsafe_allow_html=True)
+            </div>
+            """, unsafe_allow_html=True)
 
-            with r2:
-                st.markdown('<div class="v-card">', unsafe_allow_html=True)
-                st.markdown(
-                    '<div class="sect-heading" style="font-size:1rem; margin-bottom:1rem;">'
-                    '<span>↓</span> Export</div>',
-                    unsafe_allow_html=True
-                )
+            _, dl_col, _ = st.columns([2, 1, 2])
+            with dl_col:
+                st.markdown('<div style="margin-top:1rem;padding:0 2.5rem;">', unsafe_allow_html=True)
                 with open(out, "rb") as f:
-                    st.download_button("Download Excel", data=f, file_name=out,
+                    st.download_button("↓ Download Excel", data=f, file_name=out,
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         use_container_width=True, key="dl_xl")
                 try:
-                    df  = pd.read_excel(out, sheet_name=month, header=BILL_HEADER_ROW - 1)
+                    df = pd.read_excel(out, sheet_name=month, header=BILL_HEADER_ROW - 1)
                     csv = df.to_csv(index=False)
-                    st.download_button("Download CSV", data=csv,
+                    st.download_button("↓ Download CSV", data=csv,
                         file_name=f"UPDATED_BILL_REPORT_{month}.csv",
                         mime="text/csv", use_container_width=True, key="dl_csv")
-                except:
-                    pass
+                except: pass
                 st.markdown('</div>', unsafe_allow_html=True)
 
         except Exception as e:
-            progress_bar.empty(); status_el.empty(); detail_el.empty()
+            pb.empty(); se.empty(); de.empty()
             st.session_state.processing_history.append({
                 "time": datetime.now().strftime("%H:%M:%S"), "month": month,
                 "status": "error", "added": 0, "skipped": 0, "duration": "—"
             })
-            st.error(f"An error was encountered during processing: {str(e)}")
+            st.error(f"Processing error: {str(e)}")
             with st.expander("View error details"):
                 st.exception(e)
