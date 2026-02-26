@@ -6,8 +6,8 @@ import pandas as pd
 
 # ================= PAGE CONFIG =================
 st.set_page_config(
-    page_title="BillFlow — Report Automation",
-    page_icon="⬡",
+    page_title="Ledger — Bill Report Automation",
+    page_icon="📜",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -21,292 +21,376 @@ if 'show_preview' not in st.session_state:
     st.session_state.show_preview = False
 if 'show_settings' not in st.session_state:
     st.session_state.show_settings = False
-if 'show_results' not in st.session_state:
-    st.session_state.show_results = False
-if 'processing_results' not in st.session_state:
-    st.session_state.processing_results = None
 
-# ================= DESIGN SYSTEM =================
+# ================= THEME =================
 THEME = """
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=IM+Fell+English:ital@0;1&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
 
 :root {
-    --bg-void:        #06060A;
-    --bg-base:        #0C0C12;
-    --bg-surface:     #111119;
-    --bg-elevated:    #17171F;
-    --bg-hover:       #1C1C26;
-    --border-dim:     #1E1E2C;
-    --border-mid:     #2A2A3C;
-    --border-bright:  #3A3A52;
-    --gold:           #E8B84B;
-    --gold-dim:       #C49A35;
-    --gold-glow:      rgba(232,184,75,0.15);
-    --gold-glow-sm:   rgba(232,184,75,0.08);
-    --teal:           #3DD6C8;
-    --teal-dim:       #2AADA0;
-    --teal-glow:      rgba(61,214,200,0.12);
-    --red:            #FF5757;
-    --red-glow:       rgba(255,87,87,0.12);
-    --amber-soft:     #FBB040;
-    --text-primary:   #F0EEF8;
-    --text-secondary: #8B899E;
-    --text-muted:     #4A4860;
-    --text-micro:     #333248;
-    --mono:           'DM Mono', monospace;
-    --sans:           'DM Sans', sans-serif;
-    --display:        'Syne', sans-serif;
-    --radius-sm:      6px;
-    --radius-md:      10px;
-    --radius-lg:      16px;
-    --radius-xl:      22px;
+    /* Parchment palette */
+    --parch-0:       #FDFAF3;
+    --parch-1:       #F7EDD8;
+    --parch-2:       #EFE0BE;
+    --parch-3:       #E4D0A2;
+    --parch-4:       #D4BB84;
+
+    /* Ink shades */
+    --ink-0:         #2A1C08;
+    --ink-1:         #3D2B12;
+    --ink-2:         #5C4024;
+    --ink-3:         #7A5B38;
+    --ink-4:         #9B7B58;
+    --ink-5:         #BDA07A;
+
+    /* Accent: antique crimson */
+    --accent:        #8B3A2A;
+    --accent-soft:   #A04A38;
+    --accent-pale:   rgba(139,58,42,0.1);
+    --accent-border: rgba(139,58,42,0.3);
+
+    /* Verdigris (aged copper green) */
+    --verdant:       #4A7B6A;
+    --verdant-pale:  rgba(74,123,106,0.12);
+    --verdant-border:rgba(74,123,106,0.3);
+
+    /* Aged gold */
+    --gilt:          #9A6F2A;
+    --gilt-soft:     #C49040;
+
+    /* Borders */
+    --rule-light:    rgba(139,110,70,0.18);
+    --rule-mid:      rgba(139,110,70,0.32);
+    --rule-strong:   rgba(139,110,70,0.55);
+
+    /* Shadows */
+    --shadow-sm:     0 1px 4px rgba(42,28,8,0.08);
+    --shadow-md:     0 3px 12px rgba(42,28,8,0.12);
+    --shadow-lg:     0 6px 28px rgba(42,28,8,0.16);
+
+    /* Type */
+    --font-display:  'Cormorant Garant', Georgia, serif;
+    --font-body:     'Crimson Pro', Georgia, serif;
+    --font-fell:     'IM Fell English', Georgia, serif;
+    --font-mono:     'Courier Prime', 'Courier New', monospace;
+
+    --radius-sm:  4px;
+    --radius-md:  8px;
+    --radius-lg:  14px;
+    --radius-xl:  20px;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* ─── GLOBAL RESET ─── */
+*, *::before, *::after { box-sizing: border-box; }
 
-html, body, [data-testid="stAppViewContainer"],
+html, body,
+[data-testid="stAppViewContainer"],
 [data-testid="stAppViewBlockContainer"],
 .main .block-container {
-    font-family: var(--sans);
-    background: var(--bg-void) !important;
-    color: var(--text-primary);
+    font-family: var(--font-body) !important;
+    background: var(--parch-1) !important;
+    color: var(--ink-0) !important;
 }
 
-/* ─── HIDE STREAMLIT CHROME ─── */
-#MainMenu, footer, header, .stDeployButton,
-[data-testid="stToolbar"], [data-testid="stDecoration"],
-[data-testid="stStatusWidget"] { visibility: hidden !important; display: none !important; }
-
-/* ─── SCROLLBAR ─── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--bg-void); }
-::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 2px; }
-
-/* ─── MAIN CONTAINER ─── */
-.main { background: var(--bg-void) !important; }
+.main { background: var(--parch-1) !important; }
 .block-container {
-    max-width: 1400px !important;
+    max-width: 1380px !important;
     padding: 2rem 2.5rem !important;
 }
 
-/* ─── DOT GRID OVERLAY ─── */
+/* ─── PARCHMENT GRAIN OVERLAY ─── */
 .stApp::before {
     content: '';
-    position: fixed;
-    inset: 0;
-    background-image: radial-gradient(circle, var(--text-micro) 1px, transparent 1px);
-    background-size: 28px 28px;
+    position: fixed; inset: 0;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
     pointer-events: none;
     z-index: 0;
+}
+
+/* Soft vignette */
+.stApp::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(42,28,8,0.07) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ─── HIDE STREAMLIT CHROME ─── */
+#MainMenu, footer, .stDeployButton,
+[data-testid="stToolbar"],
+[data-testid="stDecoration"],
+[data-testid="stStatusWidget"] {
+    visibility: hidden !important;
+    display: none !important;
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--parch-2); }
+::-webkit-scrollbar-thumb { background: var(--parch-4); border-radius: 3px; }
+
+/* ─── HEADER ─── */
+.ledger-header {
+    text-align: center;
+    padding: 2.5rem 2rem 1.75rem;
+    position: relative;
+    margin-bottom: 2rem;
+}
+.lh-ornament {
+    font-family: var(--font-display);
+    color: var(--gilt);
+    font-size: 1.1rem;
+    letter-spacing: 0.3em;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+.lh-double-rule {
+    height: 3px;
+    border-top: 1px solid var(--rule-strong);
+    border-bottom: 1px solid var(--rule-mid);
+    margin: 0.75rem auto;
+    width: 100%;
+}
+.lh-title {
+    font-family: var(--font-display);
+    font-size: 3.4rem;
+    font-weight: 600;
+    color: var(--ink-0);
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    margin-bottom: 0.2rem;
+}
+.lh-title em {
+    font-style: italic;
+    color: var(--accent);
+}
+.lh-subtitle {
+    font-family: var(--font-fell);
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+    margin-bottom: 0.75rem;
+}
+.lh-meta {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-4);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+/* ─── SECTION HEADING ─── */
+.sect-heading {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 500;
+    color: var(--ink-1);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    letter-spacing: 0.01em;
+}
+.sect-heading::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule-mid);
+}
+.sect-heading span {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--ink-4);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border: 1px solid var(--rule-mid);
+    padding: 0.2rem 0.55rem;
+    border-radius: 3px;
+    background: var(--parch-0);
+}
+
+/* ─── CARD ─── */
+.v-card {
+    background: var(--parch-0);
+    border: 1px solid var(--rule-mid);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+.v-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--rule-mid) 15%,
+        var(--gilt) 50%,
+        var(--rule-mid) 85%,
+        transparent 100%
+    );
     opacity: 0.6;
 }
 
-/* ─── HEADER ─── */
-.header-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.5rem 2rem;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-dim);
-    border-radius: var(--radius-xl);
-    margin-bottom: 1.75rem;
-    overflow: hidden;
-}
-.header-wrap::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: linear-gradient(180deg, var(--gold) 0%, transparent 100%);
-    border-radius: 0 0 0 var(--radius-xl);
-}
-.header-accent-bar {
-    position: absolute;
-    right: 2rem; top: 50%; transform: translateY(-50%);
-    display: flex; gap: 6px; align-items: center;
-}
-.accent-dot { width: 6px; height: 6px; border-radius: 50%; }
-
-.hd-wordmark {
-    font-family: var(--display);
-    font-size: 1.5rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--text-primary);
-}
-.hd-wordmark span { color: var(--gold); }
-.hd-sub {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    color: var(--text-muted);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-top: 2px;
-}
-
-.hd-status {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--teal);
-    background: var(--teal-glow);
-    border: 1px solid rgba(61,214,200,0.2);
-    padding: 0.4rem 0.9rem;
-    border-radius: 30px;
-}
-.pulse {
-    width: 6px; height: 6px;
-    background: var(--teal);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-}
-@keyframes pulse {
-    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(61,214,200,0.4); }
-    50% { opacity: 0.7; box-shadow: 0 0 0 5px rgba(61,214,200,0); }
-}
-
-/* ─── SECTION LABEL ─── */
-.section-label {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 0.75rem;
+/* ─── ORNAMENTAL DIVIDER ─── */
+.orn-divider {
+    text-align: center;
+    color: var(--ink-5);
+    font-size: 1rem;
+    margin: 1.1rem 0;
     display: flex;
     align-items: center;
     gap: 0.6rem;
 }
-.section-label::after {
+.orn-divider::before, .orn-divider::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: var(--border-dim);
+    background: var(--rule-light);
 }
-
-/* ─── CARD BASE ─── */
-.card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-dim);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    position: relative;
-    transition: border-color 0.2s;
-}
-.card:hover { border-color: var(--border-mid); }
 
 /* ─── UPLOAD ITEMS ─── */
-.upload-item {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-dim);
+.upload-entry {
+    background: var(--parch-1);
+    border: 1px solid var(--rule-light);
     border-radius: var(--radius-md);
-    padding: 1.1rem 1.25rem 0.85rem;
-    margin-bottom: 0.75rem;
+    padding: 1.15rem 1.25rem 0.9rem;
+    margin-bottom: 0.85rem;
+    transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
     position: relative;
-    transition: border-color 0.25s, background 0.25s;
 }
-.upload-item:last-child { margin-bottom: 0; }
-.upload-item:hover {
-    border-color: var(--gold-dim);
-    background: var(--bg-hover);
-}
-.upload-item::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold-glow-sm), transparent);
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
+.upload-entry:last-of-type { margin-bottom: 0; }
+.upload-entry:hover {
+    border-color: var(--rule-strong);
+    background: var(--parch-0);
+    box-shadow: var(--shadow-sm);
 }
 
-.ui-header {
+.ue-row {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.35rem;
+    align-items: baseline;
+    gap: 0.85rem;
+    margin-bottom: 0.2rem;
 }
-.ui-index {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    color: var(--text-muted);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-mid);
-    width: 22px; height: 22px;
-    border-radius: 4px;
-    display: flex; align-items: center; justify-content: center;
+.ue-numeral {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--ink-5);
+    background: var(--parch-2);
+    border: 1px solid var(--rule-light);
+    padding: 0.1rem 0.45rem;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
     flex-shrink: 0;
 }
-.ui-title {
-    font-family: var(--display);
-    font-size: 0.9rem;
+.ue-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--ink-1);
 }
-.ui-desc {
-    font-family: var(--sans);
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    margin-bottom: 0.7rem;
-    padding-left: 2.25rem;
+.ue-desc {
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    color: var(--ink-4);
+    font-style: italic;
+    padding-left: 2.8rem;
+    margin-bottom: 0.6rem;
+    line-height: 1.4;
 }
-
-.file-loaded-chip {
-    display: inline-flex; align-items: center; gap: 0.4rem;
-    font-family: var(--mono); font-size: 0.68rem;
-    color: var(--teal);
-    background: var(--teal-glow);
-    border: 1px solid rgba(61,214,200,0.25);
-    padding: 0.25rem 0.65rem;
-    border-radius: 20px;
-    margin-top: 0.35rem;
-    margin-left: 2.25rem;
-}
-
-/* ─── PREVIEW BOX ─── */
-.preview-box {
-    background: var(--bg-void);
-    border: 1px solid var(--border-dim);
-    border-radius: var(--radius-sm);
-    padding: 0.75rem 1rem;
-    margin-top: 0.5rem;
-    margin-left: 2.25rem;
-}
-.pb-row {
-    display: flex; justify-content: space-between;
-    font-family: var(--mono); font-size: 0.7rem;
-    color: var(--text-secondary);
-    padding: 0.2rem 0;
-    border-bottom: 1px solid var(--border-dim);
-}
-.pb-row:last-child { border-bottom: none; }
-.pb-val { color: var(--gold); font-weight: 500; }
-
-/* ─── CONFIG CARD ─── */
-.config-label {
-    font-family: var(--mono);
+.file-loaded {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
     font-size: 0.68rem;
-    letter-spacing: 0.1em;
+    color: var(--verdant);
+    background: var(--verdant-pale);
+    border: 1px solid var(--verdant-border);
+    padding: 0.25rem 0.7rem;
+    border-radius: 3px;
+    margin-left: 2.8rem;
+    margin-top: 0.35rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 0.4rem;
+}
+
+/* ─── PREVIEW TABLE ─── */
+.preview-ledger {
+    background: var(--parch-1);
+    border: 1px solid var(--rule-light);
+    border-radius: var(--radius-sm);
+    margin-top: 0.55rem;
+    margin-left: 2.8rem;
+    overflow: hidden;
+}
+.pl-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.35rem 0.85rem;
+    border-bottom: 1px solid var(--rule-light);
+    font-family: var(--font-mono);
+    font-size: 0.71rem;
+    color: var(--ink-3);
+}
+.pl-row:last-child { border-bottom: none; }
+.pl-val { font-weight: 700; color: var(--accent); }
+
+/* ─── CONFIG LABELS ─── */
+.conf-label {
+    font-family: var(--font-fell);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--ink-2);
     display: block;
+    margin-bottom: 0.45rem;
+    letter-spacing: 0.02em;
+}
+
+/* ─── ALERTS ─── */
+.v-alert-info {
+    background: rgba(74,123,106,0.06);
+    border: 1px solid var(--verdant-border);
+    border-left: 3px solid var(--verdant);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.9rem;
+    font-family: var(--font-body);
+    font-style: italic;
+    font-size: 0.88rem;
+    color: var(--verdant);
+    margin-top: 0.5rem;
+    line-height: 1.4;
+}
+.v-alert-warn {
+    background: var(--accent-pale);
+    border: 1px solid var(--accent-border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.9rem;
+    font-family: var(--font-body);
+    font-style: italic;
+    font-size: 0.88rem;
+    color: var(--accent);
+    margin-top: 0.5rem;
+    line-height: 1.4;
 }
 
 /* ─── SELECTBOX ─── */
 [data-testid="stSelectbox"] > div > div {
-    background: var(--bg-elevated) !important;
-    border: 1px solid var(--border-mid) !important;
+    background: var(--parch-1) !important;
+    border: 1px solid var(--rule-mid) !important;
     border-radius: var(--radius-md) !important;
-    color: var(--text-primary) !important;
-    font-family: var(--mono) !important;
-    font-size: 0.85rem !important;
+    color: var(--ink-1) !important;
+    font-family: var(--font-mono) !important;
+    font-size: 0.9rem !important;
+    letter-spacing: 0.06em !important;
 }
 [data-testid="stSelectbox"] > div > div:hover {
-    border-color: var(--gold-dim) !important;
+    border-color: var(--accent) !important;
 }
 
 /* ─── RADIO ─── */
@@ -316,376 +400,320 @@ html, body, [data-testid="stAppViewContainer"],
     flex-direction: row !important;
 }
 [data-testid="stRadio"] label {
-    background: var(--bg-elevated) !important;
-    border: 1px solid var(--border-mid) !important;
-    border-radius: var(--radius-md) !important;
-    padding: 0.6rem 1rem !important;
-    font-family: var(--mono) !important;
-    font-size: 0.78rem !important;
-    color: var(--text-secondary) !important;
+    background: var(--parch-1) !important;
+    border: 1px solid var(--rule-mid) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 0.65rem 1rem !important;
+    font-family: var(--font-body) !important;
+    font-size: 0.92rem !important;
+    color: var(--ink-3) !important;
     cursor: pointer !important;
     transition: all 0.2s !important;
     flex: 1 !important;
     text-align: center !important;
 }
 [data-testid="stRadio"] label:hover {
-    border-color: var(--gold-dim) !important;
-    color: var(--text-primary) !important;
+    border-color: var(--accent-soft) !important;
+    color: var(--ink-1) !important;
+    background: var(--parch-0) !important;
 }
 [data-testid="stRadio"] label:has(input:checked) {
-    background: var(--gold-glow) !important;
-    border-color: var(--gold) !important;
-    color: var(--gold) !important;
+    background: var(--accent-pale) !important;
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+    font-weight: 600 !important;
 }
 
 /* ─── CHECKBOX ─── */
 [data-testid="stCheckbox"] {
-    font-family: var(--sans) !important;
-    font-size: 0.82rem !important;
-    color: var(--text-secondary) !important;
+    font-family: var(--font-body) !important;
+    font-size: 0.92rem !important;
+    color: var(--ink-2) !important;
 }
-[data-testid="stCheckbox"] span { color: var(--text-secondary) !important; }
 
 /* ─── FILE UPLOADER ─── */
 [data-testid="stFileUploader"] section {
-    background: var(--bg-void) !important;
-    border: 1px dashed var(--border-mid) !important;
+    background: var(--parch-1) !important;
+    border: 1px dashed var(--rule-mid) !important;
     border-radius: var(--radius-md) !important;
-    padding: 0.5rem 0.75rem !important;
+    padding: 0.55rem 0.85rem !important;
     transition: border-color 0.2s !important;
 }
 [data-testid="stFileUploader"] section:hover {
-    border-color: var(--gold-dim) !important;
+    border-color: var(--accent-soft) !important;
+    background: var(--parch-0) !important;
 }
 [data-testid="stFileUploader"] section p,
 [data-testid="stFileUploader"] section span,
 [data-testid="stFileUploader"] section small {
-    font-family: var(--mono) !important;
-    font-size: 0.72rem !important;
-    color: var(--text-muted) !important;
+    font-family: var(--font-body) !important;
+    font-style: italic !important;
+    font-size: 0.82rem !important;
+    color: var(--ink-4) !important;
+}
+[data-testid="stFileUploader"] section button {
+    background: var(--parch-2) !important;
+    border: 1px solid var(--rule-mid) !important;
+    color: var(--ink-2) !important;
+    font-family: var(--font-body) !important;
+    font-size: 0.82rem !important;
+    border-radius: var(--radius-sm) !important;
 }
 
 /* ─── BUTTONS ─── */
 .stButton > button {
-    background: transparent !important;
-    border: 1px solid var(--gold-dim) !important;
-    color: var(--gold) !important;
-    font-family: var(--display) !important;
-    font-size: 0.85rem !important;
+    background: var(--parch-0) !important;
+    border: 1px solid var(--rule-mid) !important;
+    color: var(--ink-2) !important;
+    font-family: var(--font-display) !important;
+    font-size: 1rem !important;
     font-weight: 600 !important;
-    letter-spacing: 0.05em !important;
-    border-radius: var(--radius-md) !important;
-    padding: 0.7rem 1.5rem !important;
+    letter-spacing: 0.04em !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 0.7rem 1.4rem !important;
     width: 100% !important;
-    transition: all 0.2s !important;
-    position: relative !important;
-    overflow: hidden !important;
-}
-.stButton > button::before {
-    content: '' !important;
-    position: absolute !important;
-    inset: 0 !important;
-    background: var(--gold-glow) !important;
-    opacity: 0 !important;
-    transition: opacity 0.2s !important;
+    transition: all 0.22s !important;
+    box-shadow: var(--shadow-sm) !important;
 }
 .stButton > button:hover {
-    border-color: var(--gold) !important;
+    background: var(--parch-1) !important;
+    border-color: var(--rule-strong) !important;
+    box-shadow: var(--shadow-md) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 8px 24px rgba(232,184,75,0.18) !important;
 }
-.stButton > button:hover::before { opacity: 1 !important; }
 
-.process-btn > button,
-div[data-testid="column"]:last-child .stButton > button.process-trigger {
-    background: linear-gradient(135deg, var(--gold) 0%, var(--amber-soft) 100%) !important;
-    border-color: transparent !important;
-    color: var(--bg-void) !important;
-    font-weight: 700 !important;
-    box-shadow: 0 4px 20px rgba(232,184,75,0.3) !important;
+.execute-btn .stButton > button {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: var(--parch-0) !important;
+    font-size: 1.05rem !important;
+    letter-spacing: 0.07em !important;
+    box-shadow: 0 4px 16px rgba(139,58,42,0.28) !important;
+}
+.execute-btn .stButton > button:hover {
+    background: var(--accent-soft) !important;
+    box-shadow: 0 6px 22px rgba(139,58,42,0.35) !important;
 }
 
 /* ─── DOWNLOAD BUTTON ─── */
 .stDownloadButton > button {
-    background: var(--teal-glow) !important;
-    border: 1px solid rgba(61,214,200,0.35) !important;
-    color: var(--teal) !important;
-    font-family: var(--display) !important;
-    font-size: 0.82rem !important;
+    background: var(--verdant-pale) !important;
+    border: 1px solid var(--verdant-border) !important;
+    color: var(--verdant) !important;
+    font-family: var(--font-display) !important;
+    font-size: 0.95rem !important;
     font-weight: 600 !important;
-    border-radius: var(--radius-md) !important;
+    border-radius: var(--radius-sm) !important;
     padding: 0.65rem 1rem !important;
     width: 100% !important;
     transition: all 0.2s !important;
 }
 .stDownloadButton > button:hover {
-    background: rgba(61,214,200,0.2) !important;
+    background: rgba(74,123,106,0.2) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 6px 18px rgba(61,214,200,0.2) !important;
+    box-shadow: 0 4px 14px rgba(74,123,106,0.2) !important;
 }
 
-/* ─── ALERT BOXES ─── */
-.alert-info {
-    background: rgba(91,111,255,0.08);
-    border: 1px solid rgba(91,111,255,0.2);
-    border-left: 2px solid #5B6FFF;
-    border-radius: var(--radius-sm);
-    padding: 0.55rem 0.8rem;
-    font-family: var(--mono);
-    font-size: 0.71rem;
-    color: #8899FF;
-    margin-top: 0.5rem;
-}
-.alert-warn {
-    background: rgba(232,184,75,0.07);
-    border: 1px solid rgba(232,184,75,0.2);
-    border-left: 2px solid var(--gold);
-    border-radius: var(--radius-sm);
-    padding: 0.55rem 0.8rem;
-    font-family: var(--mono);
-    font-size: 0.71rem;
-    color: var(--gold-dim);
-    margin-top: 0.5rem;
-}
-
-/* ─── PROGRESS BAR ─── */
+/* ─── PROGRESS ─── */
 [data-testid="stProgress"] > div {
-    background: var(--bg-elevated) !important;
-    border-radius: 3px !important;
-    height: 3px !important;
+    background: var(--parch-3) !important;
+    border-radius: 2px !important;
+    height: 4px !important;
 }
 [data-testid="stProgress"] > div > div {
-    background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--amber-soft)) !important;
-    border-radius: 3px !important;
-    box-shadow: 0 0 12px rgba(232,184,75,0.4) !important;
+    background: linear-gradient(90deg, var(--accent), var(--gilt-soft)) !important;
+    border-radius: 2px !important;
+    box-shadow: 0 0 8px rgba(139,58,42,0.3) !important;
 }
 
-/* ─── SUCCESS / ERROR MESSAGES ─── */
+/* ─── NATIVE ALERTS ─── */
 [data-testid="stAlert"] {
-    background: var(--teal-glow) !important;
-    border: 1px solid rgba(61,214,200,0.25) !important;
+    background: var(--verdant-pale) !important;
+    border: 1px solid var(--verdant-border) !important;
     border-radius: var(--radius-md) !important;
-    font-family: var(--mono) !important;
-    font-size: 0.8rem !important;
-    color: var(--teal) !important;
-}
-[data-testid="stAlert"][data-baseweb="notification"][kind="error"] {
-    background: var(--red-glow) !important;
-    border-color: rgba(255,87,87,0.25) !important;
-    color: var(--red) !important;
-}
-.stSuccess, .stError, .stInfo, .stWarning {
-    font-family: var(--mono) !important;
-    font-size: 0.8rem !important;
-    border-radius: var(--radius-md) !important;
+    font-family: var(--font-body) !important;
+    font-style: italic !important;
+    color: var(--verdant) !important;
 }
 
-/* ─── METRIC CARDS ─── */
-.metric-row {
+/* ─── METRICS ─── */
+.m-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-    margin: 1rem 0;
+    gap: 1rem;
+    margin: 1.25rem 0;
 }
-.metric-card {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-dim);
+.m-cell {
+    background: var(--parch-0);
+    border: 1px solid var(--rule-mid);
     border-radius: var(--radius-md);
-    padding: 1.1rem 1rem;
+    padding: 1.25rem 1rem;
     text-align: center;
+    box-shadow: var(--shadow-sm);
     position: relative;
     overflow: hidden;
 }
-.metric-card::after {
+.m-cell::after {
     content: '';
     position: absolute;
-    bottom: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    opacity: 0.5;
+    bottom: 0; left: 15%; right: 15%;
+    height: 1px;
+    background: var(--rule-mid);
 }
-.metric-val {
-    font-family: var(--display);
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: var(--gold);
+.m-number {
+    font-family: var(--font-display);
+    font-size: 2.8rem;
+    font-weight: 600;
+    color: var(--accent);
     line-height: 1;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.3rem;
+    letter-spacing: -0.02em;
 }
-.metric-lbl {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-muted);
+.m-label {
+    font-family: var(--font-fell);
+    font-style: italic;
+    font-size: 0.88rem;
+    color: var(--ink-4);
 }
 
 /* ─── RESULT BANNER ─── */
-.result-banner {
-    background: var(--bg-surface);
-    border: 1px solid rgba(61,214,200,0.3);
+.result-wrap {
+    background: var(--parch-0);
+    border: 1px solid var(--rule-mid);
     border-radius: var(--radius-xl);
-    padding: 1.5rem 2rem;
-    margin-bottom: 1.5rem;
+    padding: 2rem 2.25rem;
+    margin-bottom: 1.75rem;
+    box-shadow: var(--shadow-lg);
     position: relative;
     overflow: hidden;
-    animation: slideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: fadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.result-banner::before {
+.result-wrap::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--teal), transparent);
+    background: linear-gradient(90deg,
+        transparent, var(--rule-mid) 20%,
+        var(--gilt) 50%,
+        var(--rule-mid) 80%, transparent
+    );
 }
-.rb-title {
-    font-family: var(--display);
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--teal);
-    margin-bottom: 0.25rem;
+.rw-title {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--ink-0);
+    margin-bottom: 0.2rem;
+    letter-spacing: -0.01em;
 }
-.rb-sub {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--text-muted);
+.rw-title em { color: var(--accent); font-style: italic; }
+.rw-sub {
+    font-family: var(--font-fell);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--ink-4);
 }
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(-16px); }
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── HISTORY ITEMS ─── */
-.history-entry {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-dim);
-    border-radius: var(--radius-md);
-    padding: 0.75rem 1rem;
-    margin-bottom: 0.5rem;
+/* ─── HISTORY ─── */
+.hist-entry {
+    background: var(--parch-0);
+    border: 1px solid var(--rule-light);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1.1rem;
+    margin-bottom: 0.55rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     transition: border-color 0.2s;
 }
-.history-entry:hover { border-color: var(--border-mid); }
-.he-left { display: flex; flex-direction: column; gap: 2px; }
+.hist-entry:hover { border-color: var(--rule-mid); }
 .he-time {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--text-primary);
-    font-weight: 500;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: var(--ink-2);
+    font-weight: 700;
 }
-.he-detail {
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    color: var(--text-muted);
+.he-info {
+    font-family: var(--font-body);
+    font-style: italic;
+    font-size: 0.83rem;
+    color: var(--ink-4);
+    margin-top: 1px;
 }
 .he-badge {
-    font-family: var(--mono);
+    font-family: var(--font-mono);
     font-size: 0.63rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    padding: 0.25rem 0.6rem;
-    border-radius: 4px;
+    padding: 0.22rem 0.55rem;
+    border-radius: 3px;
 }
-.he-badge.ok {
-    color: var(--teal);
-    background: var(--teal-glow);
-    border: 1px solid rgba(61,214,200,0.2);
-}
-.he-badge.err {
-    color: var(--red);
-    background: var(--red-glow);
-    border: 1px solid rgba(255,87,87,0.2);
-}
+.he-ok  { color: var(--verdant); background: var(--verdant-pale); border: 1px solid var(--verdant-border); }
+.he-err { color: var(--accent);  background: var(--accent-pale);  border: 1px solid var(--accent-border); }
 
-/* ─── SETTINGS PANEL ─── */
-.settings-section {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-dim);
-    border-radius: var(--radius-lg);
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1.5rem;
+/* ─── PROGRESS STATUS ─── */
+.prog-status {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-align: center;
+    padding: 0.4rem;
+    letter-spacing: 0.08em;
 }
-.settings-row {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    padding: 0.85rem 0;
-    border-bottom: 1px solid var(--border-dim);
-}
-.settings-row:last-child { border-bottom: none; padding-bottom: 0; }
-.sr-info { flex: 1; }
-.sr-title {
-    font-family: var(--display);
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 2px;
-}
-.sr-desc {
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    color: var(--text-muted);
-}
-
-/* ─── PROGRESS DETAIL ─── */
 .prog-detail {
     display: flex;
     justify-content: space-between;
-    font-family: var(--mono);
+    font-family: var(--font-mono);
     font-size: 0.68rem;
-    color: var(--text-muted);
-    margin-top: 0.3rem;
+    color: var(--ink-5);
+    margin-top: 0.25rem;
 }
 
-/* ─── DIVIDER ─── */
-.gold-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border-mid), transparent);
-    margin: 1.25rem 0;
-}
-
-/* ─── STATUS TEXT ─── */
-.status-msg {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    color: var(--gold);
-    text-align: center;
-    padding: 0.5rem;
-    animation: blink 1.5s step-end infinite;
-}
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+/* ─── SETTINGS ─── */
+.settings-panel {
+    background: var(--parch-0);
+    border: 1px solid var(--rule-mid);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.75rem;
+    box-shadow: var(--shadow-sm);
 }
 
 /* ─── EXPANDER ─── */
 .streamlit-expanderHeader {
-    font-family: var(--mono) !important;
-    font-size: 0.78rem !important;
-    color: var(--text-secondary) !important;
-    background: var(--bg-elevated) !important;
-    border-radius: var(--radius-md) !important;
+    font-family: var(--font-body) !important;
+    font-style: italic !important;
+    font-size: 0.88rem !important;
+    color: var(--ink-3) !important;
+    background: var(--parch-1) !important;
+    border-radius: var(--radius-sm) !important;
 }
 .streamlit-expanderContent {
-    background: var(--bg-elevated) !important;
-    border: 1px solid var(--border-dim) !important;
-    border-radius: 0 0 var(--radius-md) var(--radius-md) !important;
+    background: var(--parch-1) !important;
+    border: 1px solid var(--rule-light) !important;
+    font-family: var(--font-body) !important;
 }
 
 /* ─── RESPONSIVE ─── */
-@media (max-width: 900px) {
-    .block-container { padding: 1rem 1rem !important; }
-    .header-wrap { flex-direction: column; gap: 1rem; align-items: flex-start; }
-    .metric-row { grid-template-columns: repeat(3, 1fr); }
-    .hd-accent { display: none; }
+@media (max-width: 960px) {
+    .block-container { padding: 1rem 1.25rem !important; }
+    .lh-title { font-size: 2.4rem; }
+    .m-grid { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 640px) {
-    .metric-row { grid-template-columns: 1fr; }
-    .metric-val { font-size: 1.75rem; }
+    .lh-title { font-size: 1.9rem; }
+    .m-grid { grid-template-columns: 1fr; }
+    .m-number { font-size: 2.2rem; }
 }
 """
 
 st.markdown(f"<style>{THEME}</style>", unsafe_allow_html=True)
 
-# ================= HELPER: VALIDATE FILE =================
+# ═══════════ HELPER: VALIDATE ═══════════
 def validate_file(file, file_type):
     try:
         wb = load_workbook(file)
@@ -706,256 +734,183 @@ def validate_file(file, file_type):
     except Exception as e:
         return {"valid": False, "error": str(e)}
 
-# ================= RESULTS BANNER =================
-if st.session_state.get('show_results', False):
-    results = st.session_state.processing_results
-    rb_col1, rb_col2 = st.columns([3, 1], gap="medium")
-    with rb_col1:
-        st.markdown(f"""
-        <div class="result-banner">
-            <div class="rb-title">⬡ Processing Complete</div>
-            <div class="rb-sub">Report generated successfully — ready for download</div>
-            <div class="metric-row" style="margin-top:1rem; margin-bottom:0;">
-                <div class="metric-card">
-                    <div class="metric-val">{results['added']}</div>
-                    <div class="metric-lbl">Jobs Added</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-val">{results['skipped']}</div>
-                    <div class="metric-lbl">Skipped</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-val">{results['total']}</div>
-                    <div class="metric-lbl">Total Processed</div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with rb_col2:
-        st.markdown("""
-        <div class="card" style="height:100%;">
-            <div class="section-label">Downloads</div>
-        """, unsafe_allow_html=True)
-        with open(results['filename'], "rb") as f:
-            st.download_button("↓ Excel Report", data=f, file_name=results['filename'],
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key="rb_dl_xl")
-        if results.get('csv_data'):
-            st.download_button("↓ CSV Export", data=results['csv_data'],
-                file_name=results['csv_filename'], mime="text/csv", key="rb_dl_csv")
-        if st.button("✕ Dismiss", key="dismiss_rb"):
-            st.session_state.show_results = False
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="gold-divider"></div>', unsafe_allow_html=True)
-
-# ================= HEADER =================
+# ═══════════ HEADER ═══════════
 st.markdown("""
-<div class="header-wrap">
-    <div>
-        <div class="hd-wordmark">Bill<span>Flow</span></div>
-        <div class="hd-sub">Report Automation System · v2.0</div>
-    </div>
-    <div class="hd-status">
-        <div class="pulse"></div>
-        SYSTEM READY
-    </div>
-    <div class="header-accent-bar hd-accent">
-        <div class="accent-dot" style="background:#E8B84B;"></div>
-        <div class="accent-dot" style="background:#3DD6C8;"></div>
-        <div class="accent-dot" style="background:#333248;"></div>
-    </div>
+<div class="ledger-header">
+    <span class="lh-ornament">❧ &nbsp; &nbsp; ❧</span>
+    <div class="lh-double-rule"></div>
+    <h1 class="lh-title">The Bill Report <em>Ledger</em></h1>
+    <p class="lh-subtitle">Automated reconciliation of invoices, jobs &amp; billing records</p>
+    <div class="lh-double-rule"></div>
+    <div class="lh-meta">Est. Automation System &nbsp;·&nbsp; Report Processing Suite</div>
 </div>
 """, unsafe_allow_html=True)
 
-# Settings toggle
-st_col1, st_col2 = st.columns([6, 1])
-with st_col2:
-    settings_label = "⚙ Settings" if not st.session_state.show_settings else "✕ Close"
-    if st.button(settings_label, key="settings_toggle"):
+# Settings toggle row
+tog1, tog2 = st.columns([6, 1])
+with tog2:
+    stlbl = "⚙ Settings" if not st.session_state.show_settings else "✕ Close"
+    if st.button(stlbl, key="settings_tog"):
         st.session_state.show_settings = not st.session_state.show_settings
 
-# ================= SETTINGS PANEL =================
+# ═══════════ SETTINGS ═══════════
 if st.session_state.show_settings:
-    st.markdown('<div class="settings-section">', unsafe_allow_html=True)
-    st.markdown('<div class="section-label">Preferences</div>', unsafe_allow_html=True)
-
-    s1, s2 = st.columns(2, gap="medium")
+    st.markdown('<div class="settings-panel">', unsafe_allow_html=True)
+    s1, s2 = st.columns(2, gap="large")
     with s1:
-        st.markdown("""
-        <div class="settings-row">
-            <div class="sr-info">
-                <div class="sr-title">File Preview</div>
-                <div class="sr-desc">Show file statistics after upload</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        show_prev = st.checkbox("Enable file preview", value=st.session_state.show_preview, key="prev_toggle")
+        st.markdown('<span class="conf-label">File Preview</span>', unsafe_allow_html=True)
+        show_prev = st.checkbox("Show file statistics after upload", value=st.session_state.show_preview, key="prev_chk")
         st.session_state.show_preview = show_prev
-
     with s2:
-        st.markdown("""
-        <div class="settings-row">
-            <div class="sr-info">
-                <div class="sr-title">Processing History</div>
-                <div class="sr-desc">Manage operation log</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("Clear History", key="clear_hist"):
+        st.markdown('<span class="conf-label">Processing History</span>', unsafe_allow_html=True)
+        if st.button("Clear History", key="clr_hist"):
             st.session_state.processing_history = []
-            st.success("History cleared")
-
+            st.success("History cleared.")
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ================= MAIN LAYOUT =================
+# ═══════════ MAIN COLUMNS ═══════════
+MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]
+
 left_col, right_col = st.columns([3, 2], gap="large")
 
-# ──────────────── LEFT: UPLOADS ────────────────
+# ─────────── LEFT: DOCUMENT INTAKE ───────────
 with left_col:
-    st.markdown('<div class="section-label">Document Intake</div>', unsafe_allow_html=True)
-    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<div class="sect-heading"><span>I</span> Document Intake</div>', unsafe_allow_html=True)
+    st.markdown('<div class="v-card">', unsafe_allow_html=True)
 
-    # ── BILL REPORT ──
+    # Bill Report
     st.markdown("""
-    <div class="upload-item">
-        <div class="ui-header">
-            <div class="ui-index">01</div>
-            <div class="ui-title">Bill Report</div>
+    <div class="upload-entry">
+        <div class="ue-row">
+            <span class="ue-numeral">I</span>
+            <span class="ue-title">Bill Report</span>
         </div>
-        <div class="ui-desc">Primary billing report — Excel workbook with monthly sheets</div>
+        <div class="ue-desc">Primary billing register — Excel workbook containing monthly ledger sheets</div>
     </div>
     """, unsafe_allow_html=True)
     bill_file = st.file_uploader("", type="xlsx", key="bill", label_visibility="collapsed")
     if bill_file:
-        st.markdown('<div class="file-loaded-chip">✓ LOADED</div>', unsafe_allow_html=True)
+        st.markdown('<div class="file-loaded">✦ Document Received</div>', unsafe_allow_html=True)
         if st.session_state.show_preview:
             v = validate_file(bill_file, "bill")
             if v["valid"]:
                 st.markdown(f"""
-                <div class="preview-box">
-                    <div class="pb-row"><span>Rows</span><span class="pb-val">{v['rows']}</span></div>
-                    <div class="pb-row"><span>Columns</span><span class="pb-val">{v['cols']}</span></div>
-                    <div class="pb-row"><span>Sheets</span><span class="pb-val">{len(v['sheets'])}</span></div>
+                <div class="preview-ledger">
+                    <div class="pl-row"><span>Total Rows</span><span class="pl-val">{v['rows']}</span></div>
+                    <div class="pl-row"><span>Columns</span><span class="pl-val">{v['cols']}</span></div>
+                    <div class="pl-row"><span>Sheets</span><span class="pl-val">{len(v['sheets'])}</span></div>
                 </div>
                 """, unsafe_allow_html=True)
             bill_file.seek(0)
 
-    st.markdown('<div class="gold-divider"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="orn-divider">✦</div>', unsafe_allow_html=True)
 
-    # ── JOB REPORT ──
+    # Job Report
     st.markdown("""
-    <div class="upload-item">
-        <div class="ui-header">
-            <div class="ui-index">02</div>
-            <div class="ui-title">Job Report</div>
+    <div class="upload-entry">
+        <div class="ue-row">
+            <span class="ue-numeral">II</span>
+            <span class="ue-title">Job Report</span>
         </div>
-        <div class="ui-desc">Job details, shipper data, container numbers</div>
+        <div class="ue-desc">Job particulars — shipper names, container numbers &amp; invoice references</div>
     </div>
     """, unsafe_allow_html=True)
     job_file = st.file_uploader("", type="xlsx", key="job", label_visibility="collapsed")
     if job_file:
-        st.markdown('<div class="file-loaded-chip">✓ LOADED</div>', unsafe_allow_html=True)
+        st.markdown('<div class="file-loaded">✦ Document Received</div>', unsafe_allow_html=True)
         if st.session_state.show_preview:
             v = validate_file(job_file, "job")
             if v["valid"]:
                 st.markdown(f"""
-                <div class="preview-box">
-                    <div class="pb-row"><span>Rows</span><span class="pb-val">{v['rows']}</span></div>
-                    <div class="pb-row"><span>Columns</span><span class="pb-val">{v['cols']}</span></div>
+                <div class="preview-ledger">
+                    <div class="pl-row"><span>Total Rows</span><span class="pl-val">{v['rows']}</span></div>
+                    <div class="pl-row"><span>Columns</span><span class="pl-val">{v['cols']}</span></div>
                 </div>
                 """, unsafe_allow_html=True)
             job_file.seek(0)
 
-    st.markdown('<div class="gold-divider"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="orn-divider">✦</div>', unsafe_allow_html=True)
 
-    # ── E-INVOICE ──
+    # E-Invoice
     st.markdown("""
-    <div class="upload-item">
-        <div class="ui-header">
-            <div class="ui-index">03</div>
-            <div class="ui-title">E-Invoice Report</div>
+    <div class="upload-entry">
+        <div class="ue-row">
+            <span class="ue-numeral">III</span>
+            <span class="ue-title">E-Invoice Report</span>
         </div>
-        <div class="ui-desc">Electronic invoice data — bill numbers and dates</div>
+        <div class="ue-desc">Electronic invoice register — bill numbers, issuance dates &amp; job correspondence</div>
     </div>
     """, unsafe_allow_html=True)
     einv_file = st.file_uploader("", type="xlsx", key="einv", label_visibility="collapsed")
     if einv_file:
-        st.markdown('<div class="file-loaded-chip">✓ LOADED</div>', unsafe_allow_html=True)
+        st.markdown('<div class="file-loaded">✦ Document Received</div>', unsafe_allow_html=True)
         if st.session_state.show_preview:
             v = validate_file(einv_file, "einv")
             if v["valid"]:
                 st.markdown(f"""
-                <div class="preview-box">
-                    <div class="pb-row"><span>Rows</span><span class="pb-val">{v['rows']}</span></div>
-                    <div class="pb-row"><span>Columns</span><span class="pb-val">{v['cols']}</span></div>
+                <div class="preview-ledger">
+                    <div class="pl-row"><span>Total Rows</span><span class="pl-val">{v['rows']}</span></div>
+                    <div class="pl-row"><span>Columns</span><span class="pl-val">{v['cols']}</span></div>
                 </div>
                 """, unsafe_allow_html=True)
             einv_file.seek(0)
 
-    st.markdown('</div>', unsafe_allow_html=True)  # close card
-
-# ──────────────── RIGHT: CONFIG ────────────────
-with right_col:
-    st.markdown('<div class="section-label">Configuration</div>', unsafe_allow_html=True)
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-
-    # Month selector
-    st.markdown('<span class="config-label">Billing Month</span>', unsafe_allow_html=True)
-    MONTHS = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]
-    month = st.selectbox("", MONTHS, index=st.session_state.selected_month,
-                         label_visibility="collapsed", key="month_select")
-    st.session_state.selected_month = MONTHS.index(month)
-
-    st.markdown('<div class="gold-divider"></div>', unsafe_allow_html=True)
-
-    # Update mode
-    st.markdown('<span class="config-label">Update Mode</span>', unsafe_allow_html=True)
-    update_mode = st.radio("", ["Append", "Overwrite"],
-                           label_visibility="collapsed", key="update_mode_radio")
-    if update_mode == "Append":
-        st.markdown('<div class="alert-info">ℹ New jobs will be added to existing data</div>', unsafe_allow_html=True)
-    else:
-        st.markdown('<div class="alert-warn">⚠ All existing data will be replaced</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="gold-divider"></div>', unsafe_allow_html=True)
-
-    # Process button
-    st.markdown('<div class="process-btn">', unsafe_allow_html=True)
-    process_clicked = st.button("⬡  Execute Processing", key="process_main", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True)  # close card
+# ─────────── RIGHT: CONFIGURATION ───────────
+with right_col:
+    st.markdown('<div class="sect-heading"><span>II</span> Configuration</div>', unsafe_allow_html=True)
+    st.markdown('<div class="v-card">', unsafe_allow_html=True)
 
-    # ── HISTORY ──
+    st.markdown('<span class="conf-label">Billing Period</span>', unsafe_allow_html=True)
+    month = st.selectbox("", MONTHS, index=st.session_state.selected_month,
+                         label_visibility="collapsed", key="month_sel")
+    st.session_state.selected_month = MONTHS.index(month)
+
+    st.markdown('<div class="orn-divider">· · ·</div>', unsafe_allow_html=True)
+
+    st.markdown('<span class="conf-label">Update Mode</span>', unsafe_allow_html=True)
+    update_mode = st.radio("", ["Append", "Overwrite"],
+                           label_visibility="collapsed", key="umode")
+    if update_mode == "Append":
+        st.markdown('<div class="v-alert-info">New entries shall be appended to the existing record without disturbing prior data.</div>', unsafe_allow_html=True)
+    else:
+        st.markdown('<div class="v-alert-warn">All existing entries in the selected month shall be expunged and replaced anew.</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="orn-divider">· · ·</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="execute-btn">', unsafe_allow_html=True)
+    process_clicked = st.button("✦  Execute Report Generation", key="proc_main", use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Activity log
     if st.session_state.processing_history:
-        st.markdown('<br/>', unsafe_allow_html=True)
-        st.markdown('<div class="section-label">Activity Log</div>', unsafe_allow_html=True)
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-
+        st.markdown("<br/>", unsafe_allow_html=True)
+        st.markdown('<div class="sect-heading"><span>III</span> Activity Log</div>', unsafe_allow_html=True)
+        st.markdown('<div class="v-card">', unsafe_allow_html=True)
         for entry in reversed(st.session_state.processing_history[-4:]):
-            badge_cls = "ok" if entry["status"] == "success" else "err"
-            badge_text = "OK" if entry["status"] == "success" else "ERR"
+            badge = "he-ok" if entry["status"] == "success" else "he-err"
+            mark  = "DONE"  if entry["status"] == "success" else "ERR"
             st.markdown(f"""
-            <div class="history-entry">
-                <div class="he-left">
-                    <div class="he-time">{entry["time"]} · {entry["month"]}</div>
-                    <div class="he-detail">+{entry["added"]} added &nbsp;·&nbsp; {entry["skipped"]} skipped &nbsp;·&nbsp; {entry.get("duration","—")}</div>
+            <div class="hist-entry">
+                <div>
+                    <div class="he-time">{entry["time"]} &nbsp;·&nbsp; {entry["month"]}</div>
+                    <div class="he-info">+{entry['added']} added &nbsp;·&nbsp; {entry['skipped']} skipped &nbsp;·&nbsp; {entry.get('duration','—')}</div>
                 </div>
-                <div class="he-badge {badge_cls}">{badge_text}</div>
+                <div class="he-badge {badge}">{mark}</div>
             </div>
             """, unsafe_allow_html=True)
-
         st.markdown('</div>', unsafe_allow_html=True)
 
-# ================= CONSTANTS =================
+# ═══════════ PROCESSING CONSTANTS ═══════════
 BILL_HEADER_ROW = 3
 BILL_DATA_START = 4
 SRC_HEADER_ROW  = 7
 SRC_DATA_START  = 8
 
-# ================= HELPERS =================
+# ═══════════ HELPERS ═══════════
 def norm(x):
     return str(x).strip().upper() if x else ""
 
@@ -963,13 +918,10 @@ def clean_job(job):
     return norm(job).split("/")[0]
 
 def parse_date(date_val):
-    if not date_val:
-        return None
-    if isinstance(date_val, datetime):
-        return date_val.date()
+    if not date_val: return None
+    if isinstance(date_val, datetime): return date_val.date()
     date_str = str(date_val).strip()
-    if not date_str or date_str.upper() == 'NONE':
-        return None
+    if not date_str or date_str.upper() == 'NONE': return None
     for fmt in ['%Y-%m-%d','%d-%m-%Y','%d/%m/%Y','%m/%d/%Y','%d.%m.%Y',
                 '%Y/%m/%d','%d-%b-%Y','%d %b %Y','%d-%m-%y','%d/%m/%y']:
         try:
@@ -980,114 +932,106 @@ def parse_date(date_val):
 
 def format_date_for_excel(date_val):
     if not date_val: return None
-    if isinstance(date_val, datetime):
-        return date_val.strftime('%d/%m/%y')
-    try:
-        return date_val.strftime('%d/%m/%y')
-    except:
-        return None
+    if isinstance(date_val, datetime): return date_val.strftime('%d/%m/%y')
+    try: return date_val.strftime('%d/%m/%y')
+    except: return None
 
 def col_map(ws, header_row):
     m = {}
     for c in range(1, ws.max_column + 1):
         v = ws.cell(header_row, c).value
-        if v:
-            m[norm(v)] = c
+        if v: m[norm(v)] = c
     return m
 
 def get_existing_jobs(ws, bill_cols, start_row):
     existing = set()
     for r in range(start_row, ws.max_row + 1):
-        job_val = ws.cell(r, bill_cols["JOB NO"]).value
-        if job_val:
-            existing.add(clean_job(job_val))
+        j = ws.cell(r, bill_cols["JOB NO"]).value
+        if j: existing.add(clean_job(j))
     return existing
 
 def find_next_empty_row(ws, start_row):
     for r in range(start_row, ws.max_row + 100):
-        if not ws.cell(r, 1).value and not ws.cell(r, 2).value:
-            return r
+        if not ws.cell(r, 1).value and not ws.cell(r, 2).value: return r
     return ws.max_row + 1
 
-# ================= PROCESSING =================
+# ═══════════ PROCESSING ═══════════
 if process_clicked:
     if not (bill_file and job_file and einv_file):
-        st.error("⚠ Please upload all three files to proceed.")
+        st.error("Please furnish all three documents before proceeding.")
     else:
-        progress_bar  = st.progress(0)
-        status_text   = st.empty()
-        detail_text   = st.empty()
-        start_time    = datetime.now()
+        progress_bar = st.progress(0)
+        status_el    = st.empty()
+        detail_el    = st.empty()
+        start_time   = datetime.now()
+
+        def upd(pct, msg, det=""):
+            progress_bar.progress(pct)
+            status_el.markdown(f'<div class="prog-status">{msg}</div>', unsafe_allow_html=True)
+            if det:
+                detail_el.markdown(
+                    f'<div class="prog-detail"><span>{det}</span><span>{pct}%</span></div>',
+                    unsafe_allow_html=True
+                )
 
         try:
-            def update_prog(pct, msg, detail=""):
-                progress_bar.progress(pct)
-                status_text.markdown(f'<div class="status-msg">{msg}</div>', unsafe_allow_html=True)
-                if detail:
-                    detail_text.markdown(f'<div class="prog-detail"><span>{detail}</span><span>{pct}%</span></div>', unsafe_allow_html=True)
-
-            update_prog(10, "Loading workbooks…", "Reading Excel files")
+            upd(10, "Loading workbooks…", "Reading Excel documents")
             bill_wb = load_workbook(bill_file)
             job_wb  = load_workbook(job_file)
             einv_wb = load_workbook(einv_file)
 
-            update_prog(25, "Validating structure…", "Checking sheet names")
+            upd(25, "Locating sheets…", "Verifying month tab")
             if month not in bill_wb.sheetnames:
-                st.error(f"Sheet '{month}' not found in Bill Report.")
+                st.error(f"The sheet '{month}' was not found in the Bill Report.")
                 st.stop()
 
             bill_ws = bill_wb[month]
             job_ws  = job_wb.active
             einv_ws = einv_wb.active
 
-            update_prog(35, "Mapping columns…", "Analysing headers")
+            upd(35, "Mapping columns…", "Analysing header rows")
             bill_cols = col_map(bill_ws, BILL_HEADER_ROW)
             job_cols  = col_map(job_ws,  SRC_HEADER_ROW)
             einv_cols = col_map(einv_ws, SRC_HEADER_ROW)
 
-            update_prog(45, "Validating columns…", "Checking required fields")
+            upd(45, "Validating structure…", "Checking required fields")
             for col in ["JOB NO","JOB DATE","SHIPPER NAME","INVOICE NO","SB / BE NO","CONTAINER NO"]:
                 if col not in job_cols:
-                    st.error(f"Missing column in Job Report: {col}")
-                    st.stop()
+                    st.error(f"Column absent in Job Report: {col}"); st.stop()
             for col in ["JOB NO","BILL NO","BILL DATE"]:
                 if col not in einv_cols:
-                    st.error(f"Missing column in E-Invoice: {col}")
-                    st.stop()
+                    st.error(f"Column absent in E-Invoice: {col}"); st.stop()
             for col in ["JOB NO","JOB DATE","PARTY NAME","INVOICE NO","SB / BE NO","CONTAINER NO","BILL NO","BILL DATE"]:
                 if col not in bill_cols:
-                    st.error(f"Missing column in Bill Report: {col}")
-                    st.stop()
+                    st.error(f"Column absent in Bill Report: {col}"); st.stop()
 
-            append_mode   = update_mode == "Append"
+            append_mode = update_mode == "Append"
             existing_jobs = set()
 
             if append_mode:
-                update_prog(55, "Scanning existing data…", "Checking for duplicates")
+                upd(55, "Scanning existing entries…", "Checking for duplicates")
                 existing_jobs = get_existing_jobs(bill_ws, bill_cols, BILL_DATA_START)
-                row     = find_next_empty_row(bill_ws, BILL_DATA_START)
+                row = find_next_empty_row(bill_ws, BILL_DATA_START)
                 last_sr = 0
                 for r in range(BILL_DATA_START, row):
-                    sr_val = bill_ws.cell(r, 1).value
-                    if sr_val and isinstance(sr_val, (int, float)):
-                        last_sr = max(last_sr, int(sr_val))
+                    sv = bill_ws.cell(r, 1).value
+                    if sv and isinstance(sv, (int, float)): last_sr = max(last_sr, int(sv))
                 sr = last_sr + 1
             else:
-                update_prog(55, "Clearing sheet…", "Preparing fresh data")
+                upd(55, "Clearing ledger sheet…", "Preparing for fresh entries")
                 for r in range(BILL_DATA_START, bill_ws.max_row + 1):
                     for c in range(1, bill_ws.max_column + 1):
                         bill_ws.cell(r, c).value = None
-                row = BILL_DATA_START
-                sr  = 1
+                row = BILL_DATA_START; sr = 1
 
-            update_prog(65, "Reading Job Report…", "Parsing job entries")
+            upd(65, "Reading job register…", "Parsing job entries")
             jobs = {}
             for r in range(SRC_DATA_START, job_ws.max_row + 1):
-                raw_job = job_ws.cell(r, job_cols["JOB NO"]).value
-                if not raw_job: continue
-                job_no = clean_job(raw_job)
-                if job_no in jobs: continue
-                jobs[job_no] = {
+                raw = job_ws.cell(r, job_cols["JOB NO"]).value
+                if not raw: continue
+                jn = clean_job(raw)
+                if jn in jobs: continue
+                jobs[jn] = {
                     "JOB DATE":    parse_date(job_ws.cell(r, job_cols["JOB DATE"]).value),
                     "PARTY NAME":  job_ws.cell(r, job_cols["SHIPPER NAME"]).value,
                     "INVOICE NO":  job_ws.cell(r, job_cols["INVOICE NO"]).value,
@@ -1095,56 +1039,47 @@ if process_clicked:
                     "CONTAINER NO":job_ws.cell(r, job_cols["CONTAINER NO"]).value,
                 }
 
-            update_prog(78, "Reading E-Invoice…", "Parsing invoice entries")
+            upd(78, "Reading invoice register…", "Parsing bill entries")
             bill_map = defaultdict(list)
             for r in range(SRC_DATA_START, einv_ws.max_row + 1):
-                raw_job  = einv_ws.cell(r, einv_cols["JOB NO"]).value
-                bill_no  = einv_ws.cell(r, einv_cols["BILL NO"]).value
-                bill_date= parse_date(einv_ws.cell(r, einv_cols["BILL DATE"]).value)
-                if raw_job and bill_no:
-                    bill_map[clean_job(raw_job)].append((str(bill_no), bill_date))
+                raw   = einv_ws.cell(r, einv_cols["JOB NO"]).value
+                bno   = einv_ws.cell(r, einv_cols["BILL NO"]).value
+                bdate = parse_date(einv_ws.cell(r, einv_cols["BILL DATE"]).value)
+                if raw and bno:
+                    bill_map[clean_job(raw)].append((str(bno), bdate))
 
-            update_prog(88, "Writing report…", "Generating output")
-            added_count   = 0
-            skipped_count = 0
+            upd(88, "Composing final report…", "Writing consolidated entries")
+            added = 0; skipped = 0
 
-            for job_no, data in jobs.items():
-                if append_mode and job_no in existing_jobs:
-                    skipped_count += 1
-                    continue
+            for jn, data in jobs.items():
+                if append_mode and jn in existing_jobs:
+                    skipped += 1; continue
                 bill_ws.cell(row, 1).value = sr
-                bill_ws.cell(row, bill_cols["JOB NO"]).value = job_no
+                bill_ws.cell(row, bill_cols["JOB NO"]).value = jn
                 for field in ["JOB DATE","PARTY NAME","INVOICE NO","SB / BE NO","CONTAINER NO"]:
                     val = data[field]
-                    if field == "JOB DATE":
-                        val = format_date_for_excel(val)
+                    if field == "JOB DATE": val = format_date_for_excel(val)
                     bill_ws.cell(row, bill_cols[field]).value = val
-                if job_no in bill_map:
-                    bills = bill_map[job_no]
+                if jn in bill_map:
+                    bills = bill_map[jn]
                     if len(bills) == 1:
                         merged = bills[0][0]
                     else:
-                        first_bill = str(bills[0][0])
-                        if "/" in first_bill:
-                            main_part, suffix = first_bill.rsplit("/", 1)
-                            suffix = "/" + suffix
-                        else:
-                            main_part, suffix = first_bill, ""
+                        fb = str(bills[0][0])
+                        main, suffix = (fb.rsplit("/",1)[0], "/"+fb.rsplit("/",1)[1]) if "/" in fb else (fb, "")
                         extra = []
                         for i in range(1, len(bills)):
                             bn = str(bills[i][0])
                             if "/" in bn: bn = bn.split("/")[0]
                             extra.append(bn[-4:] if len(bn) >= 4 else bn)
-                        merged = main_part + "/" + "/".join(extra) + suffix
-                    valid_dates = [b[1] for b in bills if b[1]]
-                    latest_date = max(valid_dates) if valid_dates else None
+                        merged = main + "/" + "/".join(extra) + suffix
+                    vd = [b[1] for b in bills if b[1]]
+                    ld = max(vd) if vd else None
                     bill_ws.cell(row, bill_cols["BILL NO"]).value   = merged
-                    bill_ws.cell(row, bill_cols["BILL DATE"]).value = format_date_for_excel(latest_date)
-                row += 1
-                sr  += 1
-                added_count += 1
+                    bill_ws.cell(row, bill_cols["BILL DATE"]).value = format_date_for_excel(ld)
+                row += 1; sr += 1; added += 1
 
-            update_prog(96, "Saving file…", "Writing to disk")
+            upd(96, "Committing to file…", "Saving workbook")
             out = f"UPDATED_BILL_REPORT_{month}.xlsx"
             bill_wb.save(out)
             progress_bar.progress(100)
@@ -1152,48 +1087,53 @@ if process_clicked:
             end_time = datetime.now()
             duration = (end_time - start_time).total_seconds()
 
-            status_text.empty()
-            detail_text.empty()
-            progress_bar.empty()
+            status_el.empty(); detail_el.empty(); progress_bar.empty()
 
             st.session_state.processing_history.append({
-                "time": end_time.strftime("%H:%M:%S"),
-                "month": month, "status": "success",
-                "added": added_count, "skipped": skipped_count,
+                "time": end_time.strftime("%H:%M:%S"), "month": month,
+                "status": "success", "added": added, "skipped": skipped,
                 "duration": f"{duration:.1f}s"
             })
 
-            # ── Inline result section ──
-            r1, r2 = st.columns([3, 1], gap="medium")
+            r1, r2 = st.columns([3, 1], gap="large")
+
             with r1:
-                st.success(f"Processing complete in {duration:.1f}s")
                 st.markdown(f"""
-                <div class="metric-row">
-                    <div class="metric-card">
-                        <div class="metric-val">{added_count}</div>
-                        <div class="metric-lbl">Jobs Added</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-val">{skipped_count}</div>
-                        <div class="metric-lbl">Skipped</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-val">{added_count + skipped_count}</div>
-                        <div class="metric-lbl">Total</div>
+                <div class="result-wrap">
+                    <div class="rw-title">Report <em>Complete</em></div>
+                    <div class="rw-sub">Processed in {duration:.1f} seconds &nbsp;·&nbsp; {month} ledger updated</div>
+                    <div class="m-grid">
+                        <div class="m-cell">
+                            <div class="m-number">{added}</div>
+                            <div class="m-label">Entries Added</div>
+                        </div>
+                        <div class="m-cell">
+                            <div class="m-number">{skipped}</div>
+                            <div class="m-label">Skipped</div>
+                        </div>
+                        <div class="m-cell">
+                            <div class="m-number">{added + skipped}</div>
+                            <div class="m-label">Total Examined</div>
+                        </div>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
 
             with r2:
-                st.markdown('<div class="card"><div class="section-label">Export</div>', unsafe_allow_html=True)
+                st.markdown('<div class="v-card">', unsafe_allow_html=True)
+                st.markdown(
+                    '<div class="sect-heading" style="font-size:1rem; margin-bottom:1rem;">'
+                    '<span>↓</span> Export</div>',
+                    unsafe_allow_html=True
+                )
                 with open(out, "rb") as f:
-                    st.download_button("↓ Excel", data=f, file_name=out,
+                    st.download_button("Download Excel", data=f, file_name=out,
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         use_container_width=True, key="dl_xl")
                 try:
                     df  = pd.read_excel(out, sheet_name=month, header=BILL_HEADER_ROW - 1)
                     csv = df.to_csv(index=False)
-                    st.download_button("↓ CSV", data=csv,
+                    st.download_button("Download CSV", data=csv,
                         file_name=f"UPDATED_BILL_REPORT_{month}.csv",
                         mime="text/csv", use_container_width=True, key="dl_csv")
                 except:
@@ -1201,14 +1141,11 @@ if process_clicked:
                 st.markdown('</div>', unsafe_allow_html=True)
 
         except Exception as e:
-            progress_bar.empty()
-            status_text.empty()
-            detail_text.empty()
+            progress_bar.empty(); status_el.empty(); detail_el.empty()
             st.session_state.processing_history.append({
-                "time": datetime.now().strftime("%H:%M:%S"),
-                "month": month, "status": "error",
-                "added": 0, "skipped": 0, "duration": "—"
+                "time": datetime.now().strftime("%H:%M:%S"), "month": month,
+                "status": "error", "added": 0, "skipped": 0, "duration": "—"
             })
-            st.error(f"Processing failed: {str(e)}")
-            with st.expander("Error details"):
+            st.error(f"An error was encountered during processing: {str(e)}")
+            with st.expander("View error details"):
                 st.exception(e)
