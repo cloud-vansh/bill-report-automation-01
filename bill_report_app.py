@@ -395,28 +395,48 @@ html, body,
 [data-testid="stSelectbox"] > div > div:hover { border-color: var(--sienna) !important; }
 [data-testid="stSelectbox"] > div > div > div { color: var(--espresso) !important; }
 
-/* ── radio (tab style) ── */
+/* ── radio — clean pill toggles, no dot bleeding ── */
 [data-testid="stRadio"] > div {
-    display: flex !important; gap: .5rem !important; flex-direction: row !important;
+    display: flex !important;
+    gap: .5rem !important;
+    flex-direction: row !important;
+    background: var(--cream-dk) !important;
+    border: 1px solid var(--rule-md) !important;
+    border-radius: var(--r-pill) !important;
+    padding: 4px !important;
+}
+/* hide the native circle entirely */
+[data-testid="stRadio"] label > div:first-child,
+[data-testid="stRadio"] input[type="radio"],
+[data-testid="stRadio"] [data-testid="stMarkdownContainer"] ~ div {
+    display: none !important;
 }
 [data-testid="stRadio"] label {
-    background: var(--cream) !important;
-    border: 1px solid var(--rule-md) !important;
-    border-radius: var(--r-sm) !important;
-    padding: .6rem 1rem !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: var(--r-pill) !important;
+    padding: .55rem 1.4rem !important;
     font-family: var(--ff-body) !important;
-    font-size: .85rem !important; color: var(--brown) !important;
-    cursor: pointer !important; transition: all .18s !important;
-    flex: 1 !important; text-align: center !important;
+    font-size: .84rem !important;
+    font-weight: 500 !important;
+    color: var(--brown) !important;
+    cursor: pointer !important;
+    transition: all .18s ease !important;
+    flex: 1 !important;
+    text-align: center !important;
+    letter-spacing: .02em !important;
+    line-height: 1.4 !important;
 }
 [data-testid="stRadio"] label:hover {
-    border-color: var(--sienna) !important;
-    color: var(--espresso) !important; background: var(--sienna-pale) !important;
+    color: var(--espresso) !important;
+    background: rgba(44,21,3,.06) !important;
 }
 [data-testid="stRadio"] label:has(input:checked) {
     background: var(--espresso) !important;
-    border-color: var(--espresso) !important;
-    color: var(--cream-lt) !important; font-weight: 600 !important;
+    color: #F5EDD8 !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(44,21,3,.18) !important;
+    letter-spacing: .03em !important;
 }
 
 /* ── mode note ── */
