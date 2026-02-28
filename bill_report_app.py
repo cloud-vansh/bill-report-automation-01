@@ -353,8 +353,8 @@ st.markdown(f"""
     <div class="hero-divider"><div class="hero-divider-line"></div><span class="hero-divider-dot">✦</span><div class="hero-divider-line"></div></div>
     <p class="hero-body">Upload three source files, configure the billing month and update mode, then let BillFlow consolidate every job and invoice into a clean Excel report — in seconds.</p>
     <div class="hero-btns">
-        <span class="hero-btn-p">Begin Upload ↓</span>
-        <span class="hero-btn-g">How it works</span>
+        <span class="hero-btn-p" onclick="document.getElementById('upload-anchor').scrollIntoView({{behavior:'smooth'}})">Begin Upload ↓</span>
+        <span class="hero-btn-g" onclick="document.getElementById('hiw-modal').classList.add('open')">How it works</span>
     </div>
     <div class="hero-scroll-hint">
         <span class="hsh-label">Scroll to begin</span>
@@ -367,6 +367,150 @@ st.markdown(f"""
 items = ["Bill Report","Job Register","E-Invoice","Reconcile","Export","Automate"] * 4
 band_html = "".join([f'<span class="band-item">{t} &nbsp;<em>✦</em></span>' for t in items])
 st.markdown(f'<div class="bf-band"><div class="band-track">{band_html}{band_html}</div></div>', unsafe_allow_html=True)
+
+# MODAL + UPLOAD ANCHOR
+st.markdown(f"""
+<!-- ═══ HOW IT WORKS MODAL ═══ -->
+<style>
+.hiw-overlay {{
+    position:fixed; inset:0; z-index:9000;
+    background:rgba(20,10,2,.75);
+    backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity .3s ease;
+}}
+.hiw-overlay.open {{
+    opacity:1; pointer-events:all;
+}}
+.hiw-box {{
+    background:{BG2};
+    border:1px solid {BORDER2};
+    max-width:640px; width:90%;
+    max-height:88vh; overflow-y:auto;
+    padding:3rem 2.75rem 2.5rem;
+    position:relative;
+    transform:translateY(20px);
+    transition:transform .35s ease;
+    box-shadow:0 32px 80px rgba(0,0,0,.4);
+}}
+.hiw-overlay.open .hiw-box {{
+    transform:translateY(0);
+}}
+.hiw-close {{
+    position:absolute; top:1.25rem; right:1.5rem;
+    font-family:'Cormorant',serif; font-size:1.6rem; font-weight:300;
+    color:{INK3}; cursor:pointer; line-height:1;
+    transition:color .15s;
+}}
+.hiw-close:hover {{ color:{RUST}; }}
+.hiw-eyebrow {{
+    font-family:'Jost',sans-serif; font-size:.62rem; font-weight:700;
+    letter-spacing:.28em; text-transform:uppercase; color:{RUST};
+    display:flex; align-items:center; gap:.65rem;
+    margin-bottom:.85rem;
+}}
+.hiw-eyebrow::before {{ content:''; width:26px; height:1px; background:{RUST}; flex-shrink:0; }}
+.hiw-h {{
+    font-family:'Cormorant',serif;
+    font-size:2.6rem; font-weight:700; color:{INK};
+    line-height:.9; letter-spacing:-.02em;
+    margin-bottom:1.75rem;
+}}
+.hiw-h em {{ font-style:italic; font-weight:300; color:{INK2}; }}
+.hiw-step {{
+    display:flex; gap:1.25rem;
+    padding:1.25rem 0;
+    border-bottom:1px solid {BORDER};
+}}
+.hiw-step:last-child {{ border-bottom:none; padding-bottom:0; }}
+.hiw-step-num {{
+    font-family:'Cormorant',serif;
+    font-size:3rem; font-weight:700; color:{BORDER2};
+    line-height:.85; flex-shrink:0; letter-spacing:-.03em;
+    width:2.5rem; text-align:right;
+}}
+.hiw-step-body {{ }}
+.hiw-step-title {{
+    font-family:'Cormorant',serif;
+    font-size:1.3rem; font-weight:700; color:{INK};
+    margin-bottom:.35rem; letter-spacing:-.01em;
+}}
+.hiw-step-desc {{
+    font-family:'Libre Baskerville',serif;
+    font-style:italic; font-size:.86rem; color:{INK3};
+    line-height:1.65;
+}}
+.hiw-step-desc strong {{
+    font-style:normal; font-weight:700; color:{INK2};
+}}
+.hiw-rule {{
+    height:1px; background:{BORDER}; margin:1.75rem 0 1.5rem;
+}}
+.hiw-note {{
+    font-family:'Libre Baskerville',serif;
+    font-style:italic; font-size:.82rem; color:{INK3};
+    line-height:1.6; padding:.7rem 1rem;
+    background:{BG3}; border-left:2px solid {RUST};
+}}
+</style>
+
+<div id="hiw-modal" class="hiw-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="hiw-box">
+    <span class="hiw-close" onclick="document.getElementById('hiw-modal').classList.remove('open')">&times;</span>
+    <div class="hiw-eyebrow">How It Works</div>
+    <div class="hiw-h">Three Files.<br><em>One Report.</em></div>
+
+    <div class="hiw-step">
+      <div class="hiw-step-num">1</div>
+      <div class="hiw-step-body">
+        <div class="hiw-step-title">Upload Your Three Documents</div>
+        <div class="hiw-step-desc">
+          Provide the <strong>Bill Report</strong> (master workbook with monthly tabs),
+          the <strong>Job Report</strong> (shipper names, container numbers, invoice refs, SB/BE data),
+          and the <strong>E-Invoice Report</strong> (bill numbers and issuance dates per job).
+          All files must be <strong>.xlsx</strong> format.
+        </div>
+      </div>
+    </div>
+
+    <div class="hiw-step">
+      <div class="hiw-step-num">2</div>
+      <div class="hiw-step-body">
+        <div class="hiw-step-title">Set the Billing Month &amp; Mode</div>
+        <div class="hiw-step-desc">
+          Choose which monthly tab to write into (JAN–DEC).
+          <strong>Append mode</strong> adds only new job entries and skips duplicates.
+          <strong>Overwrite mode</strong> clears all existing entries for that month and replaces them fresh.
+        </div>
+      </div>
+    </div>
+
+    <div class="hiw-step">
+      <div class="hiw-step-num">3</div>
+      <div class="hiw-step-body">
+        <div class="hiw-step-title">Execute — Download in Seconds</div>
+        <div class="hiw-step-desc">
+          BillFlow cross-references every job number across all three files, merges bill numbers
+          (handling multi-bill jobs automatically), resolves the latest bill date, and writes
+          the consolidated rows into the correct sheet. Download the updated workbook as
+          <strong>Excel</strong> or <strong>CSV</strong>.
+        </div>
+      </div>
+    </div>
+
+    <div class="hiw-rule"></div>
+    <div class="hiw-note">
+      Headers are read from row 3 (Bill Report) and row 7 (Job &amp; E-Invoice reports).
+      Data begins at row 4 and row 8 respectively. Column names must match exactly —
+      the validator will flag any missing fields before processing begins.
+    </div>
+  </div>
+</div>
+
+<!-- upload scroll anchor -->
+<div id="upload-anchor" style="position:relative;top:-80px;pointer-events:none;"></div>
+""", unsafe_allow_html=True)
 
 # SECTION 01
 st.markdown(f'<div class="bf-sec"><div class="bf-sec-inner"><div class="sec-eyebrow">Step One</div><div class="sec-headline">Upload<br><em>Your Documents</em></div><p class="sec-sub">Three source files power the reconciliation — the master ledger, the job register, and the invoice index. All files must be .xlsx format.</p></div></div>', unsafe_allow_html=True)
