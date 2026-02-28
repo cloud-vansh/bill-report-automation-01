@@ -368,201 +368,218 @@ items = ["Bill Report","Job Register","E-Invoice","Reconcile","Export","Automate
 band_html = "".join([f'<span class="band-item">{t} &nbsp;<em>✦</em></span>' for t in items])
 st.markdown(f'<div class="bf-band"><div class="band-track">{band_html}{band_html}</div></div>', unsafe_allow_html=True)
 
-# MODAL + UPLOAD ANCHOR
-st.markdown(f"""
-<!-- ═══ HOW IT WORKS MODAL ═══ -->
-<style>
-.hiw-overlay {{
-    position:fixed; inset:0; z-index:9000;
-    background:rgba(20,10,2,.75);
-    backdrop-filter:blur(6px);
-    display:flex; align-items:center; justify-content:center;
-    opacity:0; pointer-events:none;
-    transition:opacity .3s ease;
-}}
-.hiw-overlay.open {{
-    opacity:1; pointer-events:all;
-}}
-.hiw-box {{
-    background:{BG2};
-    border:1px solid {BORDER2};
-    max-width:640px; width:90%;
-    max-height:88vh; overflow-y:auto;
-    padding:3rem 2.75rem 2.5rem;
-    position:relative;
-    transform:translateY(20px);
-    transition:transform .35s ease;
-    box-shadow:0 32px 80px rgba(0,0,0,.4);
-}}
-.hiw-overlay.open .hiw-box {{
-    transform:translateY(0);
-}}
-.hiw-close {{
-    position:absolute; top:1.25rem; right:1.5rem;
-    font-family:'Cormorant',serif; font-size:1.6rem; font-weight:300;
-    color:{INK3}; cursor:pointer; line-height:1;
-    transition:color .15s;
-}}
-.hiw-close:hover {{ color:{RUST}; }}
-.hiw-eyebrow {{
-    font-family:'Jost',sans-serif; font-size:.62rem; font-weight:700;
-    letter-spacing:.28em; text-transform:uppercase; color:{RUST};
-    display:flex; align-items:center; gap:.65rem;
-    margin-bottom:.85rem;
-}}
-.hiw-eyebrow::before {{ content:''; width:26px; height:1px; background:{RUST}; flex-shrink:0; }}
-.hiw-h {{
-    font-family:'Cormorant',serif;
-    font-size:2.6rem; font-weight:700; color:{INK};
-    line-height:.9; letter-spacing:-.02em;
-    margin-bottom:1.75rem;
-}}
-.hiw-h em {{ font-style:italic; font-weight:300; color:{INK2}; }}
-.hiw-step {{
-    display:flex; gap:1.25rem;
-    padding:1.25rem 0;
-    border-bottom:1px solid {BORDER};
-}}
-.hiw-step:last-child {{ border-bottom:none; padding-bottom:0; }}
-.hiw-step-num {{
-    font-family:'Cormorant',serif;
-    font-size:3rem; font-weight:700; color:{BORDER2};
-    line-height:.85; flex-shrink:0; letter-spacing:-.03em;
-    width:2.5rem; text-align:right;
-}}
-.hiw-step-body {{ }}
-.hiw-step-title {{
-    font-family:'Cormorant',serif;
-    font-size:1.3rem; font-weight:700; color:{INK};
-    margin-bottom:.35rem; letter-spacing:-.01em;
-}}
-.hiw-step-desc {{
-    font-family:'Libre Baskerville',serif;
-    font-style:italic; font-size:.86rem; color:{INK3};
-    line-height:1.65;
-}}
-.hiw-step-desc strong {{
-    font-style:normal; font-weight:700; color:{INK2};
-}}
-.hiw-rule {{
-    height:1px; background:{BORDER}; margin:1.75rem 0 1.5rem;
-}}
-.hiw-note {{
-    font-family:'Libre Baskerville',serif;
-    font-style:italic; font-size:.82rem; color:{INK3};
-    line-height:1.6; padding:.7rem 1rem;
-    background:{BG3}; border-left:2px solid {RUST};
-}}
-</style>
-
-<div id="hiw-modal" class="hiw-overlay" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="hiw-box">
-    <span class="hiw-close" onclick="document.getElementById('hiw-modal').classList.remove('open')">&times;</span>
-    <div class="hiw-eyebrow">How It Works</div>
-    <div class="hiw-h">Three Files.<br><em>One Report.</em></div>
-
-    <div class="hiw-step">
-      <div class="hiw-step-num">1</div>
-      <div class="hiw-step-body">
-        <div class="hiw-step-title">Upload Your Three Documents</div>
-        <div class="hiw-step-desc">
-          Provide the <strong>Bill Report</strong> (master workbook with monthly tabs),
-          the <strong>Job Report</strong> (shipper names, container numbers, invoice refs, SB/BE data),
-          and the <strong>E-Invoice Report</strong> (bill numbers and issuance dates per job).
-          All files must be <strong>.xlsx</strong> format.
-        </div>
-      </div>
-    </div>
-
-    <div class="hiw-step">
-      <div class="hiw-step-num">2</div>
-      <div class="hiw-step-body">
-        <div class="hiw-step-title">Set the Billing Month &amp; Mode</div>
-        <div class="hiw-step-desc">
-          Choose which monthly tab to write into (JAN–DEC).
-          <strong>Append mode</strong> adds only new job entries and skips duplicates.
-          <strong>Overwrite mode</strong> clears all existing entries for that month and replaces them fresh.
-        </div>
-      </div>
-    </div>
-
-    <div class="hiw-step">
-      <div class="hiw-step-num">3</div>
-      <div class="hiw-step-body">
-        <div class="hiw-step-title">Execute — Download in Seconds</div>
-        <div class="hiw-step-desc">
-          BillFlow cross-references every job number across all three files, merges bill numbers
-          (handling multi-bill jobs automatically), resolves the latest bill date, and writes
-          the consolidated rows into the correct sheet. Download the updated workbook as
-          <strong>Excel</strong> or <strong>CSV</strong>.
-        </div>
-      </div>
-    </div>
-
-    <div class="hiw-rule"></div>
-    <div class="hiw-note">
-      Headers are read from row 3 (Bill Report) and row 7 (Job &amp; E-Invoice reports).
-      Data begins at row 4 and row 8 respectively. Column names must match exactly —
-      the validator will flag any missing fields before processing begins.
-    </div>
-  </div>
-</div>
-
-<!-- upload scroll anchor -->
-<div id="upload-anchor" style="position:relative;top:-80px;pointer-events:none;"></div>
-""", unsafe_allow_html=True)
-
-# JS injection — Streamlit's DOMPurify strips onclick attrs from st.markdown.
-# The only reliable way to run JS is via st.components.v1.html() which renders
-# in an iframe and can reach the parent page via window.parent.document.
+# MODAL + SCROLL ANCHOR + EVENT LISTENERS
+# Everything in one components.html() — this bypasses DOMPurify entirely.
+# The modal is injected into the PARENT page via window.parent.document,
+# so it sits in the real Streamlit DOM, not trapped inside an iframe.
 import streamlit.components.v1 as components
-components.html("""
+components.html(f"""
 <script>
-(function() {
-    function attach() {
-        var doc = window.parent.document;
-        var uploadBtn = doc.getElementById('btn-upload');
-        var howBtn    = doc.getElementById('btn-hiw');
-        var anchor    = doc.getElementById('upload-anchor');
-        var modal     = doc.getElementById('hiw-modal');
-        var closeBtn  = doc.querySelector('#hiw-modal .hiw-close');
+(function() {{
+  var doc = window.parent.document;
 
-        if (uploadBtn && anchor && !uploadBtn._bound) {
-            uploadBtn._bound = true;
-            uploadBtn.addEventListener('click', function() {
-                anchor.scrollIntoView({ behavior: 'smooth' });
-            });
-        }
-        if (howBtn && modal && !howBtn._bound) {
-            howBtn._bound = true;
-            howBtn.addEventListener('click', function() {
-                modal.classList.add('open');
-            });
-        }
-        if (closeBtn && modal && !closeBtn._bound) {
-            closeBtn._bound = true;
-            closeBtn.addEventListener('click', function() {
-                modal.classList.remove('open');
-            });
-        }
-        if (modal && !modal._bound) {
-            modal._bound = true;
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) modal.classList.remove('open');
-            });
-        }
+  // ── inject modal CSS into parent <head> ──────────────────────────────────
+  if (!doc.getElementById('hiw-style')) {{
+    var s = doc.createElement('style');
+    s.id = 'hiw-style';
+    s.textContent = `
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,700;1,300&family=Libre+Baskerville:ital@1&family=Jost:wght@400;700&display=swap');
+      .hiw-overlay {{
+        position:fixed; inset:0; z-index:99999;
+        background:rgba(20,10,2,.78);
+        backdrop-filter:blur(7px);
+        display:flex; align-items:center; justify-content:center;
+        opacity:0; pointer-events:none;
+        transition:opacity .3s ease;
+      }}
+      .hiw-overlay.open {{ opacity:1; pointer-events:all; }}
+      .hiw-box {{
+        background:{BG2};
+        border:1px solid {BORDER2};
+        max-width:620px; width:92%;
+        max-height:86vh; overflow-y:auto;
+        padding:2.75rem 2.5rem 2.25rem;
+        position:relative;
+        transform:translateY(22px);
+        transition:transform .35s ease;
+        box-shadow:0 32px 80px rgba(0,0,0,.45);
+      }}
+      .hiw-overlay.open .hiw-box {{ transform:translateY(0); }}
+      .hiw-close {{
+        position:absolute; top:1.1rem; right:1.35rem;
+        font-family:'Cormorant',serif; font-size:1.8rem; font-weight:300;
+        color:{INK3}; cursor:pointer; line-height:1; transition:color .15s;
+        background:none; border:none; padding:0;
+      }}
+      .hiw-close:hover {{ color:{RUST}; }}
+      .hiw-eyebrow {{
+        font-family:'Jost',sans-serif; font-size:.6rem; font-weight:700;
+        letter-spacing:.28em; text-transform:uppercase; color:{RUST};
+        display:flex; align-items:center; gap:.65rem; margin-bottom:.8rem;
+      }}
+      .hiw-eyebrow::before {{ content:''; width:24px; height:1px; background:{RUST}; flex-shrink:0; }}
+      .hiw-title {{
+        font-family:'Cormorant',serif;
+        font-size:2.5rem; font-weight:700; color:{INK};
+        line-height:.9; letter-spacing:-.02em; margin-bottom:1.6rem;
+      }}
+      .hiw-title em {{ font-style:italic; font-weight:300; color:{INK2}; }}
+      .hiw-step {{
+        display:flex; gap:1.1rem; padding:1.1rem 0;
+        border-bottom:1px solid {BORDER};
+      }}
+      .hiw-step:last-of-type {{ border-bottom:none; padding-bottom:0; }}
+      .hiw-num {{
+        font-family:'Cormorant',serif;
+        font-size:2.8rem; font-weight:700; color:{BORDER2};
+        line-height:.85; flex-shrink:0; letter-spacing:-.03em;
+        width:2.2rem; text-align:right; padding-top:.1rem;
+      }}
+      .hiw-step-title {{
+        font-family:'Cormorant',serif;
+        font-size:1.25rem; font-weight:700; color:{INK};
+        margin-bottom:.3rem; letter-spacing:-.01em;
+      }}
+      .hiw-step-desc {{
+        font-family:'Libre Baskerville',serif;
+        font-style:italic; font-size:.84rem; color:{INK3}; line-height:1.65;
+      }}
+      .hiw-step-desc b {{ font-style:normal; font-weight:700; color:{INK2}; }}
+      .hiw-divider {{ height:1px; background:{BORDER}; margin:1.5rem 0 1.25rem; }}
+      .hiw-note {{
+        font-family:'Libre Baskerville',serif;
+        font-style:italic; font-size:.8rem; color:{INK3};
+        line-height:1.6; padding:.65rem .9rem;
+        background:{BG3}; border-left:2px solid {RUST};
+      }}
+    `;
+    doc.head.appendChild(s);
+  }}
 
-        // Return true only when all 4 elements found
-        return !!(uploadBtn && howBtn && anchor && modal);
-    }
+  // ── inject modal HTML into parent <body> ─────────────────────────────────
+  if (!doc.getElementById('hiw-modal')) {{
+    var div = doc.createElement('div');
+    div.innerHTML = `
+      <div id="hiw-modal" class="hiw-overlay">
+        <div class="hiw-box">
+          <button class="hiw-close" id="hiw-close-btn">&times;</button>
+          <div class="hiw-eyebrow">How It Works</div>
+          <div class="hiw-title">Three Files.<br><em>One Report.</em></div>
 
-    // Retry until Streamlit has finished rendering the DOM
-    var tries = 0;
-    var iv = setInterval(function() {
-        tries++;
-        if (attach() || tries > 20) clearInterval(iv);
-    }, 200);
-})();
+          <div class="hiw-step">
+            <div class="hiw-num">1</div>
+            <div>
+              <div class="hiw-step-title">Upload Your Three Documents</div>
+              <div class="hiw-step-desc">
+                Provide the <b>Bill Report</b> (master workbook with monthly tabs),
+                the <b>Job Report</b> (shipper names, containers, invoice refs, SB/BE data),
+                and the <b>E-Invoice Report</b> (bill numbers and dates per job).
+                All files must be <b>.xlsx</b> format.
+              </div>
+            </div>
+          </div>
+
+          <div class="hiw-step">
+            <div class="hiw-num">2</div>
+            <div>
+              <div class="hiw-step-title">Set the Billing Month &amp; Mode</div>
+              <div class="hiw-step-desc">
+                Choose which monthly tab to write into (JAN–DEC).
+                <b>Append mode</b> adds only new job entries, skipping duplicates.
+                <b>Overwrite mode</b> clears all existing entries for that month and replaces them fresh.
+              </div>
+            </div>
+          </div>
+
+          <div class="hiw-step">
+            <div class="hiw-num">3</div>
+            <div>
+              <div class="hiw-step-title">Execute — Download in Seconds</div>
+              <div class="hiw-step-desc">
+                BillFlow cross-references every job number, merges bill numbers
+                (multi-bill jobs handled automatically), resolves the latest bill date,
+                and writes the consolidated rows into the correct sheet.
+                Download as <b>Excel</b> or <b>CSV</b>.
+              </div>
+            </div>
+          </div>
+
+          <div class="hiw-divider"></div>
+          <div class="hiw-note">
+            Headers are read from row 3 (Bill Report) and row 7 (Job &amp; E-Invoice).
+            Data starts at rows 4 and 8 respectively. Column names must match exactly —
+            the validator will flag any missing fields before processing begins.
+          </div>
+        </div>
+      </div>
+    `;
+    doc.body.appendChild(div.firstElementChild);
+  }}
+
+  // ── inject scroll anchor ─────────────────────────────────────────────────
+  if (!doc.getElementById('upload-anchor')) {{
+    var a = doc.createElement('div');
+    a.id = 'upload-anchor';
+    a.style.cssText = 'position:relative;top:0;pointer-events:none;height:0;';
+    // Insert before the first stVerticalBlock after hero (approximation: body end)
+    doc.body.appendChild(a);
+  }}
+
+  // ── attach event listeners ───────────────────────────────────────────────
+  function attach() {{
+    var uploadBtn = doc.getElementById('btn-upload');
+    var howBtn    = doc.getElementById('btn-hiw');
+    var modal     = doc.getElementById('hiw-modal');
+    var closeBtn  = doc.getElementById('hiw-close-btn');
+
+    // Find the upload section by looking for the "Step One" eyebrow text
+    function scrollToUpload() {{
+      var eyebrows = doc.querySelectorAll('.sec-eyebrow');
+      for (var i=0; i<eyebrows.length; i++) {{
+        if (eyebrows[i].textContent.trim() === 'Step One') {{
+          eyebrows[i].closest('.bf-sec').scrollIntoView({{behavior:'smooth', block:'start'}});
+          return;
+        }}
+      }}
+      // fallback: scroll to first file uploader
+      var uploader = doc.querySelector('[data-testid="stFileUploader"]');
+      if (uploader) uploader.scrollIntoView({{behavior:'smooth', block:'start'}});
+    }}
+
+    if (uploadBtn && !uploadBtn._bf) {{
+      uploadBtn._bf = true;
+      uploadBtn.style.cursor = 'pointer';
+      uploadBtn.addEventListener('click', scrollToUpload);
+    }}
+    if (howBtn && modal && !howBtn._bf) {{
+      howBtn._bf = true;
+      howBtn.style.cursor = 'pointer';
+      howBtn.addEventListener('click', function() {{ modal.classList.add('open'); }});
+    }}
+    if (closeBtn && modal && !closeBtn._bf) {{
+      closeBtn._bf = true;
+      closeBtn.addEventListener('click', function() {{ modal.classList.remove('open'); }});
+    }}
+    if (modal && !modal._bf) {{
+      modal._bf = true;
+      modal.addEventListener('click', function(e) {{
+        if (e.target === modal) modal.classList.remove('open');
+      }});
+      // ESC key
+      doc.addEventListener('keydown', function(e) {{
+        if (e.key === 'Escape') modal.classList.remove('open');
+      }});
+    }}
+
+    return !!(uploadBtn && howBtn && modal);
+  }}
+
+  var tries = 0;
+  var iv = setInterval(function() {{
+    tries++;
+    if (attach() || tries > 30) clearInterval(iv);
+  }}, 150);
+}})();
 </script>
 """, height=0)
 
