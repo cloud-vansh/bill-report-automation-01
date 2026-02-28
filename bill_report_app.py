@@ -112,12 +112,12 @@ else:
     SAGE="#3A6B4A"; SAGE_PL="rgba(58,107,74,.08)"
     GOLD="#8A6A18"; GOLD_PL="rgba(138,106,24,.08)"
     UP_BG="#FAF5E4"; UP_HBRD="#A63418"
-    UP_TXT="rgba(30,15,2,.38)"; UP_BTN="#EDE0C2"; UP_BTXT="#5C3418"
+    UP_TXT="#5C3418"; UP_BTN="#EDE0C2"; UP_BTXT="#3A1E08"
     SEL_BG="#FAF5E4"; SEL_BRD="rgba(30,15,2,.20)"; SEL_TXT="#1E0F02"
     RAD_BG="#EDE0C2"; RAD_BRD="rgba(30,15,2,.15)"
     RAD_TXT="#8A7050"; RAD_SEL="#1E0F02"; RAD_STX="#F4ECD6"
-    CHK_TXT="#5C3418"
-    BTN_BG="#EDE0C2"; BTN_BRD="rgba(30,15,2,.20)"; BTN_TXT="#5C3418"
+    CHK_TXT="#3A1E08"
+    BTN_BG="#1E0F02"; BTN_BRD="#1E0F02"; BTN_TXT="#F4ECD6"
     EXEC_BG="#1E0F02"; EXEC_BD="#1E0F02"; EXEC_TX="#F4ECD6"
     DL_BG="#3A6B4A"; DL_BD="#3A6B4A"
     GREEN_STRIPE="#3A6B4A"; RED_STRIPE="#A63418"; GOLD_STRIPE="#8A6A18"
@@ -125,13 +125,13 @@ else:
     TOGGLE_IC="◑"; TOGGLE_LBL="Dark Mode"
     BAND_BG="#1E0F02"; BAND_TXT="#EDE0C2"; BAND_ACC="#A63418"
     FOOT_BG="#1E0F02"; FOOT_TXT="rgba(244,236,214,.22)"; FOOT_LOGO="#C8A870"
-    MODE_OK_C="#2E5A3C"; MODE_OK_BG="rgba(58,107,74,.10)"; MODE_OK_BD="#3A6B4A"
-    MODE_WN_C="#8A2A12"; MODE_WN_BG="rgba(166,52,24,.10)"; MODE_WN_BD="#A63418"
-    FS_WAIT="rgba(30,15,2,.30)"
+    MODE_OK_C="#1A3D28"; MODE_OK_BG="rgba(58,107,74,.13)"; MODE_OK_BD="#3A6B4A"
+    MODE_WN_C="#5A1A08"; MODE_WN_BG="rgba(166,52,24,.12)"; MODE_WN_BD="#A63418"
+    FS_WAIT="#7A5030"
     TILE_NUM_C="rgba(30,15,2,.06)"; TILE_TIT_C="#1E0F02"
-    TILE_DSC_C="#A07040"; TILE_KCK_C="#A07040"
+    TILE_DSC_C="#5C3418"; TILE_KCK_C="#7A5030"
     HIST_TIT_C="#1E0F02"; HIST_TM_C="#1E0F02"
-    HIST_DT_C="#A07040"; HIST_NO_C="#A07040"
+    HIST_DT_C="#5C3418"; HIST_NO_C="#7A5030"
     EXP_BG="#EDE0C2"; EXP_TXT="#5C3418"
     ERR_COLOR="#8A2A12"
 
@@ -236,12 +236,29 @@ body,
 .tp-val {{ font-weight:700; color:{RUST}; }}
 
 /* FILE UPLOADER */
-[data-testid="stFileUploader"] section {{ background:{UP_BG} !important; border:1.5px dashed {BORDER2} !important; border-radius:0 !important; padding:.7rem 1rem !important; transition:border-color .2s !important; }}
-[data-testid="stFileUploader"] section:hover {{ border-color:{UP_HBRD} !important; background:{BG3} !important; }}
+[data-testid="stFileUploader"] section {{ 
+    background:{UP_BG} !important; 
+    border:2px dashed {BORDER2} !important; 
+    border-radius:0 !important; padding:.85rem 1.1rem !important; 
+    transition:border-color .2s !important; 
+}}
+[data-testid="stFileUploader"] section:hover {{ border-color:{RUST} !important; background:{BG3} !important; }}
 [data-testid="stFileUploader"] section p,
 [data-testid="stFileUploader"] section span,
-[data-testid="stFileUploader"] section small {{ font-family:'Jost',sans-serif !important; font-size:.78rem !important; color:{UP_TXT} !important; }}
-[data-testid="stFileUploader"] section button {{ background:{UP_BTN} !important; border:1px solid {BORDER2} !important; color:{UP_BTXT} !important; font-family:'Jost',sans-serif !important; font-size:.75rem !important; border-radius:0 !important; }}
+[data-testid="stFileUploader"] section small {{ 
+    font-family:'Jost',sans-serif !important; 
+    font-size:.78rem !important; 
+    color:{UP_TXT} !important; 
+}}
+[data-testid="stFileUploader"] section button {{ 
+    background:{UP_BTN} !important; 
+    border:1px solid {BORDER2} !important; 
+    color:{UP_BTXT} !important; 
+    font-family:'Jost',sans-serif !important; 
+    font-size:.75rem !important; font-weight:600 !important;
+    border-radius:0 !important; 
+    padding:.4rem 1rem !important;
+}}
 
 /* CONFIG */
 .cfg-label {{ font-family:'Jost',sans-serif; font-size:.62rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:{INK3}; display:block; margin-bottom:.5rem; }}
@@ -263,11 +280,25 @@ body,
 .fs-row {{ display:flex; align-items:center; gap:2rem; padding:.7rem 1rem; background:{BG3}; border:1px solid {BORDER}; margin-bottom:1.25rem; }}
 .fs-item {{ font-family:'Jost',sans-serif; font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; display:flex; align-items:center; gap:.4rem; }}
 
-/* BUTTONS */
-.stButton > button {{ background:{BTN_BG} !important; border:1px solid {BTN_BRD} !important; color:{BTN_TXT} !important; font-family:'Jost',sans-serif !important; font-size:.74rem !important; font-weight:600 !important; letter-spacing:.1em !important; text-transform:uppercase !important; border-radius:0 !important; padding:.6rem 1.5rem !important; transition:all .18s !important; width:100% !important; }}
-.stButton > button:hover {{ background:{BG3} !important; border-color:{INK3} !important; color:{INK} !important; }}
-.exec-zone .stButton > button {{ background:{EXEC_BG} !important; border:2px solid {EXEC_BD} !important; color:{EXEC_TX} !important; font-size:.84rem !important; font-weight:700 !important; padding:1.05rem 2rem !important; letter-spacing:.14em !important; box-shadow:0 4px 20px rgba(0,0,0,.18) !important; }}
-.exec-zone .stButton > button:hover {{ background:{RUST_LT} !important; border-color:{RUST_LT} !important; transform:translateY(-2px) !important; box-shadow:0 8px 32px rgba(0,0,0,.25) !important; }}
+/* BUTTONS — all buttons get the bold treatment */
+.stButton > button {{ 
+    background:{EXEC_BG} !important; 
+    border:2px solid {EXEC_BD} !important; 
+    color:{EXEC_TX} !important; 
+    font-family:'Jost',sans-serif !important; 
+    font-size:.78rem !important; font-weight:700 !important; 
+    letter-spacing:.12em !important; text-transform:uppercase !important; 
+    border-radius:0 !important; 
+    padding:.75rem 1.75rem !important; 
+    transition:all .2s !important; 
+    box-shadow:0 3px 14px rgba(0,0,0,.16) !important; 
+}}
+.stButton > button:hover {{ 
+    background:{RUST_LT} !important; 
+    border-color:{RUST_LT} !important; 
+    transform:translateY(-2px) !important; 
+    box-shadow:0 6px 24px rgba(0,0,0,.22) !important; 
+}}
 [data-testid="stProgress"] > div {{ background:{PROG_TRK} !important; border-radius:0 !important; height:3px !important; }}
 [data-testid="stProgress"] > div > div {{ background:linear-gradient(90deg,{RUST},{RUST_LT}) !important; border-radius:0 !important; }}
 .prog-txt {{ font-family:'Courier New',monospace; font-size:.75rem; color:{PROG_TXT}; text-align:center; padding:.35rem 0; letter-spacing:.06em; }}
@@ -328,15 +359,13 @@ body,
 st.markdown(f"<style>{CSS}</style>", unsafe_allow_html=True)
 
 # NAV
-nav_l, nav_m, nav_r = st.columns([3,2,3])
+nav_l, nav_r = st.columns([1, 1])
 with nav_l:
-    st.markdown(f'<div style="background:{BG};border-bottom:1px solid {BORDER};padding:0 0 0 2.5rem;height:60px;display:flex;align-items:center;gap:2.5rem;"><span class="nav-link">Upload</span><span class="nav-link">Configure</span><span class="nav-link">History</span></div>', unsafe_allow_html=True)
-with nav_m:
-    st.markdown(f'<div style="background:{BG};border-bottom:1px solid {BORDER};border-left:1px solid {BORDER};border-right:1px solid {BORDER};height:60px;display:flex;align-items:center;justify-content:center;"><span class="nav-logo">BillFlow <span class="nav-logo-script">Studio</span></span></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="background:{BG};border-bottom:1px solid {BORDER};padding:0 0 0 2.5rem;height:60px;display:flex;align-items:center;gap:2.5rem;"><span class="nav-logo">BillFlow <span class="nav-logo-script">Studio</span></span></div>', unsafe_allow_html=True)
 with nav_r:
-    nr1, nr2 = st.columns([2,2])
+    nr1, nr2 = st.columns([3, 1])
     with nr1:
-        st.markdown(f'<div style="background:{BG};border-bottom:1px solid {BORDER};height:60px;display:flex;align-items:center;justify-content:flex-end;padding-right:.75rem;"><span class="nav-cta">Process Now</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="background:{BG};border-bottom:1px solid {BORDER};height:60px;display:flex;align-items:center;justify-content:flex-end;gap:2rem;padding-right:1rem;"><span class="nav-link">Upload</span><span class="nav-link">Configure</span><span class="nav-link">History</span></div>', unsafe_allow_html=True)
     with nr2:
         st.markdown(f'<div style="background:{BG};border-bottom:1px solid {BORDER};height:60px;display:flex;align-items:center;padding-right:2.5rem;">', unsafe_allow_html=True)
         if st.button(f"{TOGGLE_IC}  {TOGGLE_LBL}", key="theme_toggle"):
