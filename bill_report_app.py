@@ -353,8 +353,8 @@ st.markdown(f"""
     <div class="hero-divider"><div class="hero-divider-line"></div><span class="hero-divider-dot">✦</span><div class="hero-divider-line"></div></div>
     <p class="hero-body">Upload three source files, configure the billing month and update mode, then let BillFlow consolidate every job and invoice into a clean Excel report — in seconds.</p>
     <div class="hero-btns">
-        <span class="hero-btn-p" onclick="document.getElementById('upload-anchor').scrollIntoView({{behavior:'smooth'}})">Begin Upload ↓</span>
-        <span class="hero-btn-g" onclick="document.getElementById('hiw-modal').classList.add('open')">How it works</span>
+        <span class="hero-btn-p" id="btn-upload">Begin Upload ↓</span>
+        <span class="hero-btn-g" id="btn-hiw">How it works</span>
     </div>
     <div class="hero-scroll-hint">
         <span class="hsh-label">Scroll to begin</span>
@@ -511,6 +511,60 @@ st.markdown(f"""
 <!-- upload scroll anchor -->
 <div id="upload-anchor" style="position:relative;top:-80px;pointer-events:none;"></div>
 """, unsafe_allow_html=True)
+
+# JS injection — Streamlit's DOMPurify strips onclick attrs from st.markdown.
+# The only reliable way to run JS is via st.components.v1.html() which renders
+# in an iframe and can reach the parent page via window.parent.document.
+import streamlit.components.v1 as components
+components.html("""
+<script>
+(function() {
+    function attach() {
+        var doc = window.parent.document;
+        var uploadBtn = doc.getElementById('btn-upload');
+        var howBtn    = doc.getElementById('btn-hiw');
+        var anchor    = doc.getElementById('upload-anchor');
+        var modal     = doc.getElementById('hiw-modal');
+        var closeBtn  = doc.querySelector('#hiw-modal .hiw-close');
+
+        if (uploadBtn && anchor && !uploadBtn._bound) {
+            uploadBtn._bound = true;
+            uploadBtn.addEventListener('click', function() {
+                anchor.scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+        if (howBtn && modal && !howBtn._bound) {
+            howBtn._bound = true;
+            howBtn.addEventListener('click', function() {
+                modal.classList.add('open');
+            });
+        }
+        if (closeBtn && modal && !closeBtn._bound) {
+            closeBtn._bound = true;
+            closeBtn.addEventListener('click', function() {
+                modal.classList.remove('open');
+            });
+        }
+        if (modal && !modal._bound) {
+            modal._bound = true;
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) modal.classList.remove('open');
+            });
+        }
+
+        // Return true only when all 4 elements found
+        return !!(uploadBtn && howBtn && anchor && modal);
+    }
+
+    // Retry until Streamlit has finished rendering the DOM
+    var tries = 0;
+    var iv = setInterval(function() {
+        tries++;
+        if (attach() || tries > 20) clearInterval(iv);
+    }, 200);
+})();
+</script>
+""", height=0)
 
 # SECTION 01
 st.markdown(f'<div class="bf-sec"><div class="bf-sec-inner"><div class="sec-eyebrow">Step One</div><div class="sec-headline">Upload<br><em>Your Documents</em></div><p class="sec-sub">Three source files power the reconciliation — the master ledger, the job register, and the invoice index. All files must be .xlsx format.</p></div></div>', unsafe_allow_html=True)
