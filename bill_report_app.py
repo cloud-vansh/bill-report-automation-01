@@ -160,10 +160,11 @@ body,
     background:{BG} !important; color:{INK} !important;
     font-family:'Jost',sans-serif !important;
 }}
+[data-testid="stMainBlockContainer"] {{ padding-top: 2rem !important; padding-bottom: 2rem !important; }}
 
 /* HERO AND BRANDING */
 .hero-wrap {{ padding: 2.5rem 1rem 3rem; text-align: center; border-bottom:1px solid {BORDER}; }}
-.hero-logo {{ font-family:'Cormorant',serif; font-size:1.6rem; font-weight:700; color:{INK}; position:absolute; top:2rem; left:2.5rem; }}
+.hero-logo {{ font-family:'Cormorant',serif; font-size:1.6rem; font-weight:700; color:{INK}; display:inline-block; }}
 .hero-script {{ font-family:'Caveat',cursive; font-size:1.2rem; font-weight:600; color:{RUST}; }}
 .sub-script {{ font-family:'Caveat',cursive; font-size:1.6rem; font-weight:600; color:{RUST}; display:block; margin: 3rem auto 0.5rem; }}
 .hero-title {{ font-family:'Cormorant',serif; font-size:5.5rem; font-weight:700; color:{INK}; line-height:.95; letter-spacing:-.03em; margin-bottom:1.5rem; }}
@@ -244,18 +245,21 @@ body,
 
 st.markdown(f"<style>{CSS}</style>", unsafe_allow_html=True)
 
-# THEME BUTTON (Absolute Top Right via flex wrapper)
-st.markdown('<div class="theme-toggle-wrap">', unsafe_allow_html=True)
-if st.button(f"{TOGGLE_IC}  {TOGGLE_LBL}", key="theme_toggle", use_container_width=True):
-    st.session_state.dark_mode = not st.session_state.dark_mode
-    st.rerun()
-st.markdown('</div>', unsafe_allow_html=True)
+# HEADER (Logo + Theme Toggle)
+top_left, top_empty, top_right = st.columns([2, 7, 2])
+
+with top_left:
+    st.markdown('<div class="hero-logo" style="margin-left:0.5rem; padding-top:0.3rem;">BillFlow <span class="hero-script" style="display:inline;">Studio</span></div>', unsafe_allow_html=True)
+    
+with top_right:
+    if st.button(f"{TOGGLE_IC}  {TOGGLE_LBL}", key="theme_toggle", use_container_width=True):
+        st.session_state.dark_mode = not st.session_state.dark_mode
+        st.rerun()
 
 # HERO
 st.markdown(f'''
-<span class="hero-logo">BillFlow <span class="hero-script" style="display:inline;">Studio</span></span>
-<div class="hero-wrap">
-    <span class="sub-script">Data Concierge</span>
+<div class="hero-wrap" style="padding-top:1rem; border-top:none;">
+    <span class="sub-script" style="margin-top:0;">Data Concierge</span>
     <div class="hero-title">Automated Bill <em>Reconciliation</em></div>
     <div class="hero-desc">Supply your Master Ledger alongside standard Job & E-Invoice extracts. BillFlow dynamically synthesizes the parameters and regenerates completely mapped outputs instantaneously.</div>
 </div>
