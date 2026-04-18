@@ -8,7 +8,7 @@ st.set_page_config(
     page_title="BillFlow · Automation",
     page_icon="✦",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 for k, v in {
@@ -101,17 +101,13 @@ if dm:
     GREEN_STRIPE="#4A8A5A"; RED_STRIPE="#D4602A"; GOLD_STRIPE="#C89828"
     PROG_TRK="rgba(255,220,140,.1)"; PROG_TXT="#D4602A"
     TOGGLE_IC="☀"; TOGGLE_LBL="Light Mode"
-    BAND_BG="#F0E4C4"; BAND_TXT="#2A1E0C"; BAND_ACC="#D4602A"
-    FOOT_BG="#0C0804"; FOOT_TXT="rgba(240,228,196,.22)"; FOOT_LOGO="#C8A870"
     MODE_OK_C="#7ED49A"; MODE_OK_BG="rgba(74,138,90,.15)"; MODE_OK_BD="#4A8A5A"
     MODE_WN_C="#E8A888"; MODE_WN_BG="rgba(212,96,42,.15)"; MODE_WN_BD="#D4602A"
-    FS_WAIT="rgba(240,228,196,.25)"
     TILE_NUM_C="rgba(255,220,140,.07)"; TILE_TIT_C="#F0E4C4"
     TILE_DSC_C="#8A7050"; TILE_KCK_C="#8A7050"
     HIST_TIT_C="#F0E4C4"; HIST_TM_C="#F0E4C4"
-    HIST_DT_C="#8A7050"; HIST_NO_C="#6A5038"
-    EXP_BG="rgba(255,220,140,.05)"; EXP_TXT="rgba(240,228,196,.45)"
-    ERR_COLOR="#E8A888"
+    HIST_DT_C="#8A7050"
+    EXP_BG="transparent"; EXP_TXT="rgba(240,228,196,.45)"
 else:
     BG="#F4ECD6"; BG2="#FAF5E4"; BG3="#EDE0C2"
     BORDER="rgba(30,15,2,.12)"; BORDER2="rgba(30,15,2,.22)"
@@ -131,20 +127,16 @@ else:
     GREEN_STRIPE="#3A6B4A"; RED_STRIPE="#A63418"; GOLD_STRIPE="#8A6A18"
     PROG_TRK="rgba(30,15,2,.10)"; PROG_TXT="#A63418"
     TOGGLE_IC="◑"; TOGGLE_LBL="Dark Mode"
-    BAND_BG="#1E0F02"; BAND_TXT="#EDE0C2"; BAND_ACC="#A63418"
-    FOOT_BG="#1E0F02"; FOOT_TXT="rgba(244,236,214,.22)"; FOOT_LOGO="#C8A870"
     MODE_OK_C="#1A3D28"; MODE_OK_BG="rgba(58,107,74,.13)"; MODE_OK_BD="#3A6B4A"
     MODE_WN_C="#5A1A08"; MODE_WN_BG="rgba(166,52,24,.12)"; MODE_WN_BD="#A63418"
-    FS_WAIT="#7A5030"
     TILE_NUM_C="rgba(30,15,2,.06)"; TILE_TIT_C="#1E0F02"
     TILE_DSC_C="#5C3418"; TILE_KCK_C="#7A5030"
     HIST_TIT_C="#1E0F02"; HIST_TM_C="#1E0F02"
-    HIST_DT_C="#5C3418"; HIST_NO_C="#7A5030"
-    EXP_BG="#EDE0C2"; EXP_TXT="#5C3418"
-    ERR_COLOR="#8A2A12"
+    HIST_DT_C="#5C3418"
+    EXP_BG="transparent"; EXP_TXT="#5C3418"
 
 CSS = f"""
-@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500;600;700&family=Caveat:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700&family=Jost:wght@300;400;500;600;700&family=Caveat:wght@500;600;700&display=swap');
 
 header[data-testid="stHeader"],
 [data-testid="stHeader"],
@@ -156,10 +148,6 @@ header[data-testid="stHeader"],
 }}
 *, *::before, *::after {{ box-sizing: border-box; }}
 html {{ scroll-behavior:smooth; scrollbar-gutter:stable; }}
-::-webkit-scrollbar {{ width:5px; }}
-::-webkit-scrollbar-track {{ background:{BG3}; }}
-::-webkit-scrollbar-thumb {{ background:{BORDER2}; border-radius:3px; }}
-::-webkit-scrollbar-thumb:hover {{ background:{INK3}; }}
 body,
 [data-testid="stAppViewContainer"],
 .main,
@@ -168,681 +156,338 @@ body,
     background:{BG} !important; color:{INK} !important;
     font-family:'Jost',sans-serif !important;
 }}
-.main .block-container {{ padding:0 !important; max-width:100% !important; }}
-[data-testid="stHorizontalBlock"] {{ gap:1.25rem !important; padding:0 !important; align-items:stretch !important; }}
-[data-testid="stColumn"] {{ padding:0 !important; }}
-[data-testid="stVerticalBlock"] {{ gap:0 !important; }}
 
-/* NAV */
-.bf-nav {{
-    background:{BG}; border-bottom:1px solid {BORDER};
-    padding:0 2.5rem; position:sticky; top:0; z-index:999;
+/* SIDEBAR REWORK */
+[data-testid="stSidebar"] {{
+    background:{BG2} !important;
+    border-right:1px solid {BORDER} !important;
 }}
-.bf-nav-inner {{
-    max-width:1200px; margin:0 auto;
-    height:60px; display:flex; align-items:center; justify-content:space-between;
-}}
-.nav-logo {{ font-family:'Cormorant',serif; font-size:1.6rem; font-weight:700; color:{INK}; display:flex; align-items:baseline; gap:.3rem; }}
-.nav-logo-script {{ font-family:'Caveat',cursive; font-size:1rem; font-weight:600; color:{RUST}; }}
-.nav-link {{ font-family:'Jost',sans-serif; font-size:.75rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:{INK3}; cursor:pointer; transition:color .15s; }}
-.nav-link:hover {{ color:{INK}; }}
-.nav-cta {{ font-family:'Jost',sans-serif; font-size:.72rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:{BG2}; background:{INK}; padding:.45rem 1.3rem; cursor:pointer; transition:background .2s; }}
-.nav-cta:hover {{ background:{RUST}; }}
+.sb-logo {{ font-family:'Cormorant',serif; font-size:1.8rem; font-weight:700; color:{INK}; display:flex; align-items:baseline; gap:.3rem; margin:1rem 0 2rem; padding:0 1rem; }}
+.sb-script {{ font-family:'Caveat',cursive; font-size:1.1rem; font-weight:600; color:{RUST}; }}
+.sb-title {{ font-family:'Jost',sans-serif; font-size:.65rem; font-weight:700; letter-spacing:.25em; text-transform:uppercase; color:{INK3}; margin:2rem 0 1rem; padding:0 1rem; }}
 
-/* HERO */
-.bf-hero {{ background:{BG}; padding:6rem 2.5rem 5rem; text-align:center; border-bottom:1px solid {BORDER}; position:relative; overflow:hidden; }}
-.bf-hero::before {{ content:''; position:absolute; top:1.5rem; left:6%; right:6%; height:1px; background:linear-gradient(90deg,transparent,{BORDER2} 25%,{BORDER2} 75%,transparent); }}
-.bf-hero::after  {{ content:''; position:absolute; top:1.85rem; left:6%; right:6%; height:1px; background:linear-gradient(90deg,transparent,{BORDER} 25%,{BORDER} 75%,transparent); }}
-.hero-vol {{ font-family:'Jost',sans-serif; font-size:.65rem; font-weight:700; letter-spacing:.3em; text-transform:uppercase; color:{INK3}; margin-bottom:1.25rem; animation:fadeUp .5s .05s ease both; }}
-.hero-vol em {{ color:{RUST}; font-style:normal; }}
-.hero-h1 {{ font-family:'Cormorant',serif; font-size:clamp(4rem,9vw,8.5rem); font-weight:700; color:{INK}; line-height:.92; letter-spacing:-.025em; margin-bottom:.3rem; animation:fadeUp .55s .1s ease both; }}
-.hero-h1 em {{ font-style:italic; font-weight:300; color:{INK2}; }}
-.hero-script {{ font-family:'Caveat',cursive; font-size:clamp(2rem,4.5vw,3.8rem); font-weight:600; color:{RUST}; display:block; line-height:1.1; margin-bottom:1.5rem; animation:fadeUp .55s .15s ease both; }}
-.hero-divider {{ display:flex; align-items:center; gap:1rem; justify-content:center; margin-bottom:1.5rem; animation:fadeUp .55s .2s ease both; }}
-.hero-divider-line {{ width:60px; height:1px; background:{BORDER2}; }}
-.hero-divider-dot {{ color:{RUST}; font-size:.7rem; }}
-.hero-body {{ font-family:'Libre Baskerville',serif; font-style:italic; font-size:clamp(.9rem,1.5vw,1.05rem); color:{INK3}; max-width:480px; margin:0 auto 2.25rem; line-height:1.7; animation:fadeUp .6s .25s ease both; }}
-.hero-btns {{ display:flex; align-items:center; gap:1rem; justify-content:center; animation:fadeUp .6s .3s ease both; }}
-.hero-btn-p {{ font-family:'Jost',sans-serif; font-size:.78rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:{BG2}; background:{INK}; padding:.88rem 2.25rem; border:2px solid {INK}; cursor:pointer; transition:all .2s; display:inline-block; }}
-.hero-btn-p:hover {{ background:{RUST}; border-color:{RUST}; }}
-.hero-btn-g {{ font-family:'Jost',sans-serif; font-size:.75rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:{INK2}; background:transparent; padding:.88rem 1.8rem; border:1px solid {BORDER2}; cursor:pointer; transition:all .2s; display:inline-block; }}
-.hero-btn-g:hover {{ border-color:{INK}; color:{INK}; }}
-.hero-scroll-hint {{ margin-top:3.5rem; display:flex; flex-direction:column; align-items:center; gap:.45rem; animation:fadeUp .7s .5s ease both; }}
-.hsh-label {{ font-family:'Jost',sans-serif; font-size:.6rem; font-weight:700; letter-spacing:.25em; text-transform:uppercase; color:{INK3}; }}
-.hsh-line {{ width:1px; height:36px; background:linear-gradient(180deg,{BORDER2},transparent); animation:scrollPulse 2.2s ease-in-out infinite; }}
+/* HEADER */
+.dsh-wrap {{ padding: 2rem 2.5rem 1rem; border-bottom:1px solid {BORDER}; }}
+.dsh-eyebrow {{ font-family:'Jost',sans-serif; font-size:.6rem; font-weight:700; letter-spacing:.28em; text-transform:uppercase; color:{RUST}; margin-bottom:.5rem; }}
+.dsh-title {{ font-family:'Cormorant',serif; font-size:3rem; font-weight:700; color:{INK}; line-height:.94; letter-spacing:-.02em; margin-bottom:.5rem; }}
+.dsh-title em {{ font-style:italic; font-weight:300; color:{INK2}; }}
+.dsh-sub {{ font-family:'Libre Baskerville',serif; font-style:italic; font-size:.9rem; color:{INK3}; max-width:600px; line-height:1.6; margin-bottom:0; }}
 
-/* BAND */
-.bf-band {{ background:{BAND_BG}; padding:.8rem 0; overflow:hidden; white-space:nowrap; }}
-.band-track {{ display:inline-flex; animation:marquee 28s linear infinite; }}
-.band-item {{ font-family:'Cormorant',serif; font-size:1rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:{BAND_TXT}; padding:0 1.75rem; }}
-.band-item em {{ color:{BAND_ACC}; font-style:normal; }}
+/* COL TITLE */
+.col-title {{ font-family:'Cormorant',serif; font-size:1.4rem; font-weight:700; color:{INK}; margin-bottom:1.5rem; letter-spacing:-.01em; display:flex; align-items:center; gap:.5rem; }}
+.col-title::after {{ content:''; height:1px; background:{BORDER}; flex:1; }}
 
-/* SECTIONS */
-.bf-sec {{ background:{BG}; padding:4.5rem 2.5rem 2rem; border-bottom:1px solid {BORDER}; }}
-.bf-sec-inner {{ max-width:1200px; margin:0 auto; }}
-.bf-sec-dark {{ background:{BG2}; padding:4.5rem 2.5rem 2rem; border-bottom:1px solid {BORDER}; }}
-.bf-sec-dark-inner {{ max-width:1200px; margin:0 auto; }}
-.sec-eyebrow {{ font-family:'Jost',sans-serif; font-size:.62rem; font-weight:700; letter-spacing:.28em; text-transform:uppercase; color:{RUST}; display:flex; align-items:center; gap:.65rem; margin-bottom:.85rem; }}
-.sec-eyebrow::before {{ content:''; width:28px; height:1px; background:{RUST}; flex-shrink:0; }}
-.sec-headline {{ font-family:'Cormorant',serif; font-size:clamp(2.2rem,4.5vw,4rem); font-weight:700; color:{INK}; line-height:.94; letter-spacing:-.025em; margin-bottom:.6rem; }}
-.sec-headline em {{ font-style:italic; font-weight:300; color:{INK2}; }}
-.sec-sub {{ font-family:'Libre Baskerville',serif; font-style:italic; font-size:.95rem; color:{INK3}; line-height:1.65; max-width:520px; margin-bottom:2.5rem; }}
-
-/* TILES */
-.tile-wrap {{ background:{BG2}; border:1px solid {BORDER}; border-top:4px solid; padding:1.5rem 1.5rem 1.25rem; margin-bottom:.75rem; transition:box-shadow .2s; position:relative; overflow:hidden; }}
-.tile-wrap:hover {{ box-shadow:0 8px 32px rgba(0,0,0,.12); }}
-.tile-num-bg {{ position:absolute; right:.8rem; top:.3rem; font-family:'Cormorant',serif; font-size:5.5rem; font-weight:700; color:{TILE_NUM_C}; line-height:1; letter-spacing:-.04em; pointer-events:none; user-select:none; }}
-.tile-kicker {{ font-family:'Jost',sans-serif; font-size:.6rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:{TILE_KCK_C}; margin-bottom:.55rem; display:block; }}
-.tile-title {{ font-family:'Cormorant',serif; font-size:1.55rem; font-weight:700; color:{TILE_TIT_C}; line-height:1.1; margin-bottom:.35rem; letter-spacing:-.01em; }}
-.tile-desc {{ font-family:'Libre Baskerville',serif; font-style:italic; font-size:.8rem; color:{TILE_DSC_C}; line-height:1.55; }}
-.tile-rule {{ height:1px; background:{BORDER}; margin:1rem 0 .75rem; }}
-.tile-status-ok {{ display:inline-flex; align-items:center; gap:.4rem; font-family:'Jost',sans-serif; font-size:.65rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; padding:.28rem .75rem; background:{SAGE_PL}; border:1px solid {SAGE}; color:{SAGE}; }}
-.tile-status-wait {{ display:inline-flex; align-items:center; gap:.4rem; font-family:'Jost',sans-serif; font-size:.65rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; padding:.28rem .75rem; background:transparent; border:1px solid {BORDER2}; color:{INK3}; }}
-.tile-preview {{ background:{BG3}; padding:.6rem .8rem; margin-top:.55rem; font-family:'Courier New',monospace; font-size:.68rem; }}
-.tp-row {{ display:flex; justify-content:space-between; color:{INK2}; padding:.14rem 0; border-bottom:1px solid {BORDER}; }}
-.tp-row:last-child {{ border-bottom:none; }}
+/* TILES COMPACT */
+.tile-wrap {{ background:{BG2}; border:1px solid {BORDER}; border-left:4px solid; padding:1.25rem; margin-bottom:1.25rem; position:relative; overflow:hidden; }}
+.tile-num-bg {{ position:absolute; right:.5rem; top:0; font-family:'Cormorant',serif; font-size:5rem; font-weight:700; color:{TILE_NUM_C}; line-height:1; letter-spacing:-.04em; pointer-events:none; user-select:none; }}
+.tile-kicker {{ font-family:'Jost',sans-serif; font-size:.55rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:{TILE_KCK_C}; display:block; margin-bottom:.3rem; }}
+.tile-title {{ font-family:'Cormorant',serif; font-size:1.3rem; font-weight:700; color:{TILE_TIT_C}; line-height:1; margin-bottom:.35rem; }}
+.tile-desc {{ font-family:'Libre Baskerville',serif; font-style:italic; font-size:.78rem; color:{TILE_DSC_C}; line-height:1.45; }}
+.tile-status-ok {{ display:inline-flex; align-items:center; gap:.4rem; font-family:'Jost',sans-serif; font-size:.65rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:.2rem .6rem; background:{SAGE_PL}; border:1px solid {SAGE}; color:{SAGE}; margin-top:.7rem; }}
+.tile-status-wait {{ display:inline-flex; align-items:center; gap:.4rem; font-family:'Jost',sans-serif; font-size:.65rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:.2rem .6rem; background:transparent; border:1px solid {BORDER2}; color:{INK3}; margin-top:.7rem; }}
+.tp-row {{ display:flex; justify-content:space-between; color:{INK2}; padding:.14rem 0; border-bottom:1px solid {BORDER}; font-family:'Courier New',monospace; font-size:.65rem; }}
 .tp-val {{ font-weight:700; color:{RUST}; }}
 
 /* FILE UPLOADER */
-[data-testid="stFileUploader"] section {{ 
-    background:{UP_BG} !important; 
-    border:2px dashed {BORDER2} !important; 
-    border-radius:0 !important; padding:.85rem 1.1rem !important; 
-    transition:border-color .2s !important; 
-}}
-[data-testid="stFileUploader"] section:hover {{ border-color:{RUST} !important; background:{BG3} !important; }}
-[data-testid="stFileUploader"] section p,
-[data-testid="stFileUploader"] section span,
-[data-testid="stFileUploader"] section small {{ 
-    font-family:'Jost',sans-serif !important; 
-    font-size:.78rem !important; 
-    color:{UP_TXT} !important; 
-}}
-[data-testid="stFileUploader"] section button {{ 
-    background:{UP_BTN} !important; 
-    border:1px solid {BORDER2} !important; 
-    color:{UP_BTXT} !important; 
-    font-family:'Jost',sans-serif !important; 
-    font-size:.75rem !important; font-weight:600 !important;
-    border-radius:0 !important; 
-    padding:.4rem 1rem !important;
-}}
+[data-testid="stFileUploader"] {{ margin-top:-.5rem; }}
+[data-testid="stFileUploader"] section {{ background:transparent !important; border:1px dashed {BORDER2} !important; padding:.5rem !important; min-height:0 !important; }}
+[data-testid="stFileUploader"] section p {{ font-family:'Jost',sans-serif !important; font-size:.7rem !important; color:{INK3} !important; margin:0 !important; }}
+[data-testid="stFileUploader"] section button {{ background:{BG3} !important; border:none !important; color:{INK} !important; font-size:.65rem !important; padding:.2rem .6rem !important; }}
 
-/* CONFIG */
+/* CONFIG AREA */
+.cfg-box {{ background:{BG2}; border:1px solid {BORDER}; padding:1.75rem; }}
 .cfg-label {{ font-family:'Jost',sans-serif; font-size:.62rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:{INK3}; display:block; margin-bottom:.5rem; }}
 [data-testid="stSelectbox"] > div > div {{ background:{SEL_BG} !important; border:1px solid {SEL_BRD} !important; border-radius:0 !important; color:{SEL_TXT} !important; font-family:'Courier New',monospace !important; font-size:.92rem !important; font-weight:600 !important; }}
-[data-testid="stSelectbox"] > div > div:hover {{ border-color:{RUST} !important; }}
-[data-testid="stSelectbox"] > div > div > div {{ color:{SEL_TXT} !important; }}
-[data-testid="stSelectbox"] svg {{ fill:{INK3} !important; }}
-[data-testid="stRadio"] > div {{ display:flex !important; gap:0 !important; flex-direction:row !important; background:{RAD_BG} !important; border:1px solid {RAD_BRD} !important; border-radius:0 !important; padding:3px !important; }}
-[data-testid="stRadio"] label > div:first-child,
-[data-testid="stRadio"] input[type="radio"] {{ display:none !important; }}
-[data-testid="stRadio"] label {{ background:transparent !important; border:none !important; padding:.6rem 1.5rem !important; font-family:'Jost',sans-serif !important; font-size:.85rem !important; font-weight:500 !important; color:{RAD_TXT} !important; cursor:pointer !important; transition:all .18s !important; flex:1 !important; text-align:center !important; letter-spacing:.04em !important; line-height:1.4 !important; }}
-[data-testid="stRadio"] label:hover {{ color:{INK} !important; background:{BG3} !important; }}
-[data-testid="stRadio"] label:has(input:checked) {{ background:{RAD_SEL} !important; color:{RAD_STX} !important; font-weight:700 !important; letter-spacing:.06em !important; box-shadow:0 2px 10px rgba(0,0,0,.2) !important; }}
-.mode-note {{ font-family:'Libre Baskerville',serif; font-style:italic; font-size:.85rem; line-height:1.6; padding:.7rem 1rem; margin-top:.65rem; border-left:3px solid; }}
+[data-testid="stRadio"] > div {{ display:flex !important; flex-direction:row !important; background:{RAD_BG} !important; border:1px solid {RAD_BRD} !important; border-radius:0 !important; padding:3px !important; gap:0 !important; }}
+[data-testid="stRadio"] label > div:first-child, [data-testid="stRadio"] input[type="radio"] {{ display:none !important; }}
+[data-testid="stRadio"] label {{ padding:.5rem !important; font-family:'Jost',sans-serif !important; font-size:.8rem !important; color:{RAD_TXT} !important; cursor:pointer !important; flex:1 !important; text-align:center !important; margin:0 !important; border-radius:0 !important; }}
+[data-testid="stRadio"] label:has(input:checked) {{ background:{RAD_SEL} !important; color:{RAD_STX} !important; font-weight:700 !important; }}
+.mode-note {{ font-family:'Libre Baskerville',serif; font-style:italic; font-size:.8rem; line-height:1.5; padding:.75rem; margin:1rem 0; border-left:3px solid; }}
 .mode-ok {{ color:{MODE_OK_C}; background:{MODE_OK_BG}; border-color:{MODE_OK_BD}; }}
 .mode-warn {{ color:{MODE_WN_C}; background:{MODE_WN_BG}; border-color:{MODE_WN_BD}; }}
-[data-testid="stCheckbox"] label span,
-[data-testid="stCheckbox"] span {{ font-family:'Jost',sans-serif !important; font-size:.83rem !important; color:{CHK_TXT} !important; }}
-.fs-row {{ display:flex; align-items:center; gap:2rem; padding:.7rem 1rem; background:{BG3}; border:1px solid {BORDER}; margin-bottom:1.25rem; }}
-.fs-item {{ font-family:'Jost',sans-serif; font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; display:flex; align-items:center; gap:.4rem; }}
 
-/* BUTTONS — all buttons get the bold treatment */
-.stButton > button {{ 
-    background:{EXEC_BG} !important; 
-    border:2px solid {EXEC_BD} !important; 
-    color:{EXEC_TX} !important; 
-    font-family:'Jost',sans-serif !important; 
-    font-size:.78rem !important; font-weight:700 !important; 
-    letter-spacing:.12em !important; text-transform:uppercase !important; 
-    border-radius:0 !important; 
-    padding:.75rem 1.75rem !important; 
-    transition:all .2s !important; 
-    box-shadow:0 3px 14px rgba(0,0,0,.16) !important; 
-}}
-.stButton > button:hover {{ 
-    background:{RUST_LT} !important; 
-    border-color:{RUST_LT} !important; 
-    transform:translateY(-2px) !important; 
-    box-shadow:0 6px 24px rgba(0,0,0,.22) !important; 
-}}
-[data-testid="stProgress"] > div {{ background:{PROG_TRK} !important; border-radius:0 !important; height:3px !important; }}
-[data-testid="stProgress"] > div > div {{ background:linear-gradient(90deg,{RUST},{RUST_LT}) !important; border-radius:0 !important; }}
-.prog-txt {{ font-family:'Courier New',monospace; font-size:.75rem; color:{PROG_TXT}; text-align:center; padding:.35rem 0; letter-spacing:.06em; }}
-.prog-det {{ display:flex; justify-content:space-between; font-family:'Courier New',monospace; font-size:.64rem; color:{INK3}; margin-top:.15rem; }}
-.stDownloadButton > button {{ background:{DL_BG} !important; border:2px solid {DL_BD} !important; color:#fff !important; font-family:'Jost',sans-serif !important; font-size:.74rem !important; font-weight:700 !important; letter-spacing:.1em !important; text-transform:uppercase !important; border-radius:0 !important; padding:.75rem 1.5rem !important; width:100% !important; transition:all .18s !important; }}
-.stDownloadButton > button:hover {{ filter:brightness(1.12) !important; transform:translateY(-1px) !important; }}
-.streamlit-expanderHeader {{ font-family:'Jost',sans-serif !important; font-size:.8rem !important; color:{EXP_TXT} !important; background:{EXP_BG} !important; border-radius:0 !important; }}
-[data-testid="stAlert"] {{ font-family:'Jost',sans-serif !important; font-size:.85rem !important; border-radius:0 !important; }}
+/* BUTTON */
+.stButton button {{ background:{EXEC_BG} !important; border:1px solid {EXEC_BD} !important; color:{EXEC_TX} !important; font-family:'Jost',sans-serif !important; font-size:.75rem !important; font-weight:700 !important; letter-spacing:.12em !important; text-transform:uppercase !important; border-radius:0 !important; padding:.75rem !important; box-shadow:0 4px 12px rgba(0,0,0,.1) !important; }}
+.stButton button:hover {{ transform:translateY(-1px) !important; filter:brightness(1.1) !important; }}
 
-/* HISTORY */
-.hist-panel {{ background:{BG3}; border:1px solid {BORDER}; padding:1.5rem 1.4rem; }}
-.hist-panel-title {{ font-family:'Cormorant',serif; font-size:1.45rem; font-weight:700; color:{HIST_TIT_C}; letter-spacing:-.01em; margin-bottom:1.1rem; display:flex; align-items:center; gap:.6rem; }}
-.hist-panel-title::after {{ content:''; flex:1; height:1px; background:{BORDER}; }}
-.hist-entry {{ display:flex; align-items:center; justify-content:space-between; padding:.55rem 0; border-bottom:1px solid {BORDER}; }}
-.hist-entry:last-child {{ border-bottom:none; }}
-.he-info {{ display:flex; flex-direction:column; gap:2px; }}
-.he-time {{ font-family:'Courier New',monospace; font-size:.72rem; font-weight:700; color:{HIST_TM_C}; }}
-.he-detail {{ font-family:'Jost',sans-serif; font-size:.68rem; color:{HIST_DT_C}; }}
-.he-badge {{ font-family:'Jost',sans-serif; font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; padding:.2rem .6rem; }}
-.he-ok  {{ color:{SAGE};  background:{SAGE_PL};  border:1px solid {SAGE}; }}
-.he-err {{ color:{RUST};  background:{RUST_PL};  border:1px solid {RUST}; }}
-.hist-empty {{ font-family:'Libre Baskerville',serif; font-style:italic; font-size:.85rem; color:{HIST_NO_C}; line-height:1.6; }}
+/* PROGRESS */
+[data-testid="stProgress"] > div {{ background:{PROG_TRK} !important; border-radius:0 !important; height:2px !important; margin-top:2rem !important; }}
+[data-testid="stProgress"] > div > div {{ background:{RUST} !important; border-radius:0 !important; }}
+.prog-txt {{ font-family:'Courier New',monospace; font-size:.7rem; color:{PROG_TXT}; margin-bottom:.2rem; font-weight:600; }}
+.prog-det {{ font-family:'Courier New',monospace; font-size:.6rem; color:{INK3}; display:flex; justify-content:space-between; }}
+
+/* HISTORY CARDS */
+.he-wrap {{ padding:1rem; border-bottom:1px solid {BORDER}; }}
+.he-time {{ font-family:'Courier New',monospace; font-size:.7rem; font-weight:700; color:{HIST_TM_C}; display:block; margin-bottom:.2rem; }}
+.he-detail {{ font-family:'Jost',sans-serif; font-size:.65rem; color:{HIST_DT_C}; }}
+.he-ok {{ color:{SAGE}; font-weight:700; font-size:.6rem; float:right; }}
+.he-err {{ color:{RUST}; font-weight:700; font-size:.6rem; float:right; }}
+.stExpander {{ border:1px solid {BORDER} !important; border-radius:0 !important; background:{EXP_BG} !important; }}
+.streamlit-expanderHeader {{ font-family:'Jost',sans-serif !important; font-size:.75rem !important; font-weight:600 !important; color:{INK} !important; letter-spacing:.05em !important; padding:.6rem 1rem !important; }}
 
 /* RESULTS */
-.results-section {{ background:{BG2}; border-top:1px solid {BORDER}; padding:4rem 2.5rem; }}
-.results-inner {{ max-width:1200px; margin:0 auto; }}
-.results-headline {{ font-family:'Cormorant',serif; font-size:clamp(3.5rem,7vw,6.5rem); font-weight:700; color:{INK}; line-height:.88; letter-spacing:-.03em; margin-bottom:2.5rem; }}
-.results-headline em {{ font-style:italic; font-weight:300; color:{RUST}; }}
-.metrics-row {{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; margin-bottom:2.5rem; }}
-.metric-tile {{ background:{BG}; border:1px solid {BORDER}; padding:1.6rem 1.4rem; position:relative; overflow:hidden; }}
-.metric-tile::after {{ content:''; position:absolute; bottom:0; left:0; right:0; height:3px; background:{RUST}; }}
-.mt-num {{ font-family:'Cormorant',serif; font-size:4.5rem; font-weight:700; color:{RUST}; line-height:.88; letter-spacing:-.03em; margin-bottom:.45rem; }}
-.mt-lbl {{ font-family:'Jost',sans-serif; font-size:.62rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:{INK3}; }}
-
-/* FOOTER */
-.bf-footer {{ background:{FOOT_BG}; padding:1.75rem 2.5rem; }}
-.bf-footer-inner {{ max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }}
-.footer-logo {{ font-family:'Cormorant',serif; font-size:1.3rem; font-weight:700; color:{FOOT_LOGO}; display:flex; align-items:baseline; gap:.3rem; }}
-.footer-script {{ font-family:'Caveat',cursive; font-size:.9rem; font-weight:600; color:{RUST_LT}; }}
-.footer-copy {{ font-family:'Jost',sans-serif; font-size:.65rem; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:{FOOT_TXT}; }}
-
-@keyframes fadeUp {{ from{{ opacity:0; transform:translateY(16px); }} to{{ opacity:1; transform:translateY(0); }} }}
-@keyframes scrollPulse {{ 0%,100%{{ opacity:.25; transform:scaleY(1); }} 50%{{ opacity:.9; transform:scaleY(1.2); }} }}
-@keyframes marquee {{ from{{ transform:translateX(0); }} to{{ transform:translateX(-50%); }} }}
-
-@media(max-width:900px){{
-    .bf-sec,.bf-sec-dark,.bf-hero,.results-section{{ padding-left:1.25rem; padding-right:1.25rem; }}
-    .hero-h1{{ font-size:3.2rem; }}
-    .metrics-row{{ grid-template-columns:1fr 1fr; }}
-}}
-@media(max-width:580px){{
-    .hero-h1{{ font-size:2.4rem; }}
-    .hero-btns{{ flex-direction:column; }}
-    .metrics-row{{ grid-template-columns:1fr; }}
-}}
+.res-box {{ background:{BG2}; border:1px solid {BORDER}; border-top:3px solid {RUST}; padding:1.5rem; margin-top:1.5rem; text-align:center; }}
+.res-title {{ font-family:'Cormorant',serif; font-size:2rem; font-weight:700; color:{INK}; margin-bottom:1.5rem; line-height:1; }}
+.res-metrics {{ display:flex; justify-content:space-around; align-items:center; gap:1rem; margin-bottom:1.5rem; }}
+.res-m {{ display:flex; flex-direction:column; gap:.2rem; }}
+.res-m-val {{ font-family:'Cormorant',serif; font-size:2.5rem; font-weight:700; color:{RUST}; line-height:.9; }}
+.res-m-lbl {{ font-family:'Jost',sans-serif; font-size:.55rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:{INK3}; }}
 """
 
 st.markdown(f"<style>{CSS}</style>", unsafe_allow_html=True)
 
-# NAV
-nav_l, nav_r = st.columns([1, 1])
-with nav_l:
-    st.markdown(f'<div style="background:{BG};border-bottom:1px solid {BORDER};padding:0 0 0 2.5rem;height:60px;display:flex;align-items:center;gap:2.5rem;"><span class="nav-logo">BillFlow <span class="nav-logo-script">Studio</span></span></div>', unsafe_allow_html=True)
-with nav_r:
-    nr1, nr2 = st.columns([3, 1])
-    with nr1:
-        st.markdown(f'<div style="background:{BG};border-bottom:1px solid {BORDER};height:60px;display:flex;align-items:center;justify-content:flex-end;gap:2rem;padding-right:1rem;"><span class="nav-link">Upload</span><span class="nav-link">Configure</span><span class="nav-link">History</span></div>', unsafe_allow_html=True)
-    with nr2:
-        st.markdown(f'<div style="background:{BG};border-bottom:1px solid {BORDER};height:60px;display:flex;align-items:center;padding-right:2.5rem;">', unsafe_allow_html=True)
-        if st.button(f"{TOGGLE_IC}  {TOGGLE_LBL}", key="theme_toggle"):
-            st.session_state.dark_mode = not st.session_state.dark_mode
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-# HERO
-st.markdown(f"""
-<div class="bf-hero">
-    <div class="hero-vol">Vol. I &nbsp;·&nbsp; <em>Report Automation</em> &nbsp;·&nbsp; Est. 2024</div>
-    <h1 class="hero-h1">AUTOMATE<br><em>Your Billing</em></h1>
-    <span class="hero-script">Reports, reconciled.</span>
-    <div class="hero-divider"><div class="hero-divider-line"></div><span class="hero-divider-dot">✦</span><div class="hero-divider-line"></div></div>
-    <p class="hero-body">Upload three source files, configure the billing month and update mode, then let BillFlow consolidate every job and invoice into a clean Excel report — in seconds.</p>
-    <div class="hero-btns">
-        <span class="hero-btn-p" id="btn-upload">Begin Upload ↓</span>
-        <span class="hero-btn-g" id="btn-hiw">How it works</span>
-    </div>
-    <div class="hero-scroll-hint">
-        <span class="hsh-label">Scroll to begin</span>
-        <div class="hsh-line"></div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# BAND
-items = ["Bill Report","Job Register","E-Invoice","Reconcile","Export","Automate"] * 4
-band_html = "".join([f'<span class="band-item">{t} &nbsp;<em>✦</em></span>' for t in items])
-st.markdown(f'<div class="bf-band"><div class="band-track">{band_html}{band_html}</div></div>', unsafe_allow_html=True)
-
-# MODAL + SCROLL ANCHOR + EVENT LISTENERS
-# Everything in one components.html() — this bypasses DOMPurify entirely.
-# The modal is injected into the PARENT page via window.parent.document,
-# so it sits in the real Streamlit DOM, not trapped inside an iframe.
-import streamlit.components.v1 as components
-components.html(f"""
-<script>
-(function() {{
-  var doc = window.parent.document;
-
-  // ── inject modal CSS into parent <head> ──────────────────────────────────
-  if (!doc.getElementById('hiw-style')) {{
-    var s = doc.createElement('style');
-    s.id = 'hiw-style';
-    s.textContent = `
-      @import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,700;1,300&family=Libre+Baskerville:ital@1&family=Jost:wght@400;700&display=swap');
-      .hiw-overlay {{
-        position:fixed; inset:0; z-index:99999;
-        background:rgba(20,10,2,.78);
-        backdrop-filter:blur(7px);
-        display:flex; align-items:center; justify-content:center;
-        opacity:0; pointer-events:none;
-        transition:opacity .3s ease;
-      }}
-      .hiw-overlay.open {{ opacity:1; pointer-events:all; }}
-      .hiw-box {{
-        background:{BG2};
-        border:1px solid {BORDER2};
-        max-width:620px; width:92%;
-        max-height:86vh; overflow-y:auto;
-        padding:2.75rem 2.5rem 2.25rem;
-        position:relative;
-        transform:translateY(22px);
-        transition:transform .35s ease;
-        box-shadow:0 32px 80px rgba(0,0,0,.45);
-      }}
-      .hiw-overlay.open .hiw-box {{ transform:translateY(0); }}
-      .hiw-close {{
-        position:absolute; top:1.1rem; right:1.35rem;
-        font-family:'Cormorant',serif; font-size:1.8rem; font-weight:300;
-        color:{INK3}; cursor:pointer; line-height:1; transition:color .15s;
-        background:none; border:none; padding:0;
-      }}
-      .hiw-close:hover {{ color:{RUST}; }}
-      .hiw-eyebrow {{
-        font-family:'Jost',sans-serif; font-size:.6rem; font-weight:700;
-        letter-spacing:.28em; text-transform:uppercase; color:{RUST};
-        display:flex; align-items:center; gap:.65rem; margin-bottom:.8rem;
-      }}
-      .hiw-eyebrow::before {{ content:''; width:24px; height:1px; background:{RUST}; flex-shrink:0; }}
-      .hiw-title {{
-        font-family:'Cormorant',serif;
-        font-size:2.5rem; font-weight:700; color:{INK};
-        line-height:.9; letter-spacing:-.02em; margin-bottom:1.6rem;
-      }}
-      .hiw-title em {{ font-style:italic; font-weight:300; color:{INK2}; }}
-      .hiw-step {{
-        display:flex; gap:1.1rem; padding:1.1rem 0;
-        border-bottom:1px solid {BORDER};
-      }}
-      .hiw-step:last-of-type {{ border-bottom:none; padding-bottom:0; }}
-      .hiw-num {{
-        font-family:'Cormorant',serif;
-        font-size:2.8rem; font-weight:700; color:{BORDER2};
-        line-height:.85; flex-shrink:0; letter-spacing:-.03em;
-        width:2.2rem; text-align:right; padding-top:.1rem;
-      }}
-      .hiw-step-title {{
-        font-family:'Cormorant',serif;
-        font-size:1.25rem; font-weight:700; color:{INK};
-        margin-bottom:.3rem; letter-spacing:-.01em;
-      }}
-      .hiw-step-desc {{
-        font-family:'Libre Baskerville',serif;
-        font-style:italic; font-size:.84rem; color:{INK3}; line-height:1.65;
-      }}
-      .hiw-step-desc b {{ font-style:normal; font-weight:700; color:{INK2}; }}
-      .hiw-divider {{ height:1px; background:{BORDER}; margin:1.5rem 0 1.25rem; }}
-      .hiw-note {{
-        font-family:'Libre Baskerville',serif;
-        font-style:italic; font-size:.8rem; color:{INK3};
-        line-height:1.6; padding:.65rem .9rem;
-        background:{BG3}; border-left:2px solid {RUST};
-      }}
-    `;
-    doc.head.appendChild(s);
-  }}
-
-  // ── inject modal HTML into parent <body> ─────────────────────────────────
-  if (!doc.getElementById('hiw-modal')) {{
-    var div = doc.createElement('div');
-    div.innerHTML = `
-      <div id="hiw-modal" class="hiw-overlay">
-        <div class="hiw-box">
-          <button class="hiw-close" id="hiw-close-btn">&times;</button>
-          <div class="hiw-eyebrow">How It Works</div>
-          <div class="hiw-title">Three Files.<br><em>One Report.</em></div>
-
-          <div class="hiw-step">
-            <div class="hiw-num">1</div>
-            <div>
-              <div class="hiw-step-title">Upload Your Three Documents</div>
-              <div class="hiw-step-desc">
-                Provide the <b>Bill Report</b> (master workbook with monthly tabs),
-                the <b>Job Report</b> (shipper names, containers, invoice refs, SB/BE data),
-                and the <b>E-Invoice Report</b> (bill numbers and dates per job).
-                All files must be <b>.xlsx</b> format.
-              </div>
-            </div>
-          </div>
-
-          <div class="hiw-step">
-            <div class="hiw-num">2</div>
-            <div>
-              <div class="hiw-step-title">Set the Billing Month &amp; Mode</div>
-              <div class="hiw-step-desc">
-                Choose which monthly tab to write into (JAN–DEC).
-                <b>Append mode</b> adds only new job entries, skipping duplicates.
-                <b>Overwrite mode</b> clears all existing entries for that month and replaces them fresh.
-              </div>
-            </div>
-          </div>
-
-          <div class="hiw-step">
-            <div class="hiw-num">3</div>
-            <div>
-              <div class="hiw-step-title">Execute — Download in Seconds</div>
-              <div class="hiw-step-desc">
-                BillFlow cross-references every job number, merges bill numbers
-                (multi-bill jobs handled automatically), resolves the latest bill date,
-                and writes the consolidated rows into the correct sheet.
-                Download as <b>Excel</b> or <b>CSV</b>.
-              </div>
-            </div>
-          </div>
-
-          <div class="hiw-divider"></div>
-          <div class="hiw-note">
-            Headers are read from row 3 (Bill Report) and row 7 (Job &amp; E-Invoice).
-            Data starts at rows 4 and 8 respectively. Column names must match exactly —
-            the validator will flag any missing fields before processing begins.
-          </div>
+# SIDEBAR
+with st.sidebar:
+    st.markdown(f'<div class="sb-logo">BillFlow <span class="sb-script">Studio</span></div>', unsafe_allow_html=True)
+    if st.button(f"{TOGGLE_IC}  {TOGGLE_LBL}", key="theme_toggle"):
+        st.session_state.dark_mode = not st.session_state.dark_mode
+        st.rerun()
+    
+    st.markdown('<div style="height:1.5rem;"></div>', unsafe_allow_html=True)
+    
+    with st.expander("✦ How to use BillFlow"):
+        st.markdown("""
+        <div style="font-family:'Libre Baskerville',serif; font-size:.78rem; color:var(--text-color); line-height:1.6; padding:0 .5rem;">
+        <b>1. Upload Documents</b><br>
+        Provide the Bill Report (master), Job Report (details), and E-Invoice Report.<br><br>
+        <b>2. Configure Run</b><br>
+        Select the target month. <i>Append</i> mode adds naturally, <i>Overwrite</i> flashes the sheet beforehand.<br><br>
+        <b>3. Execute</b><br>
+        BillFlow maps missing job headers dynamically, merges matching records, and compiles the Excel file.
         </div>
-      </div>
-    `;
-    doc.body.appendChild(div.firstElementChild);
-  }}
-
-  // ── inject scroll anchor ─────────────────────────────────────────────────
-  if (!doc.getElementById('upload-anchor')) {{
-    var a = doc.createElement('div');
-    a.id = 'upload-anchor';
-    a.style.cssText = 'position:relative;top:0;pointer-events:none;height:0;';
-    // Insert before the first stVerticalBlock after hero (approximation: body end)
-    doc.body.appendChild(a);
-  }}
-
-  // ── attach event listeners ───────────────────────────────────────────────
-  function attach() {{
-    var uploadBtn = doc.getElementById('btn-upload');
-    var howBtn    = doc.getElementById('btn-hiw');
-    var modal     = doc.getElementById('hiw-modal');
-    var closeBtn  = doc.getElementById('hiw-close-btn');
-
-    // Find the upload section by looking for the "Step One" eyebrow text
-    function scrollToUpload() {{
-      var eyebrows = doc.querySelectorAll('.sec-eyebrow');
-      for (var i=0; i<eyebrows.length; i++) {{
-        if (eyebrows[i].textContent.trim() === 'Step One') {{
-          eyebrows[i].closest('.bf-sec').scrollIntoView({{behavior:'smooth', block:'start'}});
-          return;
-        }}
-      }}
-      // fallback: scroll to first file uploader
-      var uploader = doc.querySelector('[data-testid="stFileUploader"]');
-      if (uploader) uploader.scrollIntoView({{behavior:'smooth', block:'start'}});
-    }}
-
-    if (uploadBtn && !uploadBtn._bf) {{
-      uploadBtn._bf = true;
-      uploadBtn.style.cursor = 'pointer';
-      uploadBtn.addEventListener('click', scrollToUpload);
-    }}
-    if (howBtn && modal && !howBtn._bf) {{
-      howBtn._bf = true;
-      howBtn.style.cursor = 'pointer';
-      howBtn.addEventListener('click', function() {{ modal.classList.add('open'); }});
-    }}
-    if (closeBtn && modal && !closeBtn._bf) {{
-      closeBtn._bf = true;
-      closeBtn.addEventListener('click', function() {{ modal.classList.remove('open'); }});
-    }}
-    if (modal && !modal._bf) {{
-      modal._bf = true;
-      modal.addEventListener('click', function(e) {{
-        if (e.target === modal) modal.classList.remove('open');
-      }});
-      // ESC key
-      doc.addEventListener('keydown', function(e) {{
-        if (e.key === 'Escape') modal.classList.remove('open');
-      }});
-    }}
-
-    return !!(uploadBtn && howBtn && modal);
-  }}
-
-  var tries = 0;
-  var iv = setInterval(function() {{
-    tries++;
-    if (attach() || tries > 30) clearInterval(iv);
-  }}, 150);
-}})();
-</script>
-""", height=0)
-
-# SECTION 01
-st.markdown(f'<div class="bf-sec"><div class="bf-sec-inner"><div class="sec-eyebrow">Step One</div><div class="sec-headline">Upload<br><em>Your Documents</em></div><p class="sec-sub">Three source files power the reconciliation — the master ledger, the job register, and the invoice index. All files must be .xlsx format.</p></div></div>', unsafe_allow_html=True)
-
-st.markdown(f'<div style="background:{BG};padding:0 2.5rem 3rem;"><div style="max-width:1200px;margin:0 auto;">', unsafe_allow_html=True)
-uc1, uc2, uc3 = st.columns(3, gap="medium")
-
-with uc1:
-    st.markdown(f'<div class="tile-wrap" style="border-top-color:{GREEN_STRIPE};"><div class="tile-num-bg">I</div><span class="tile-kicker">Primary Register</span><div class="tile-title">Bill Report</div><div class="tile-desc">Master billing workbook with monthly tabs — consolidated data is written into this file.</div><div class="tile-rule"></div></div>', unsafe_allow_html=True)
-    bill_file = st.file_uploader("Bill Report", type="xlsx", key="bill", label_visibility="collapsed")
-    if bill_file:
-        st.markdown('<div class="tile-status-ok">✓ &nbsp;Loaded</div>', unsafe_allow_html=True)
-        if st.session_state.show_preview:
-            v = validate_file(bill_file, "bill")
-            if v["valid"]:
-                sn = len(v["sheets"]) if v["sheets"] else "—"
-                st.markdown(f'<div class="tile-preview"><div class="tp-row"><span>Rows</span><span class="tp-val">{v["rows"]}</span></div><div class="tp-row"><span>Cols</span><span class="tp-val">{v["cols"]}</span></div><div class="tp-row"><span>Sheets</span><span class="tp-val">{sn}</span></div></div>', unsafe_allow_html=True)
-            bill_file.seek(0)
-    else:
-        st.markdown('<div class="tile-status-wait">○ &nbsp;Awaiting file</div>', unsafe_allow_html=True)
-
-with uc2:
-    st.markdown(f'<div class="tile-wrap" style="border-top-color:{RED_STRIPE};"><div class="tile-num-bg">II</div><span class="tile-kicker">Job Register</span><div class="tile-title">Job Report</div><div class="tile-desc">Shipper details, container numbers, invoice references and SB/BE data for each job entry.</div><div class="tile-rule"></div></div>', unsafe_allow_html=True)
-    job_file = st.file_uploader("Job Report", type="xlsx", key="job", label_visibility="collapsed")
-    if job_file:
-        st.markdown('<div class="tile-status-ok">✓ &nbsp;Loaded</div>', unsafe_allow_html=True)
-        if st.session_state.show_preview:
-            v = validate_file(job_file, "job")
-            if v["valid"]:
-                st.markdown(f'<div class="tile-preview"><div class="tp-row"><span>Rows</span><span class="tp-val">{v["rows"]}</span></div><div class="tp-row"><span>Cols</span><span class="tp-val">{v["cols"]}</span></div></div>', unsafe_allow_html=True)
-            job_file.seek(0)
-    else:
-        st.markdown('<div class="tile-status-wait">○ &nbsp;Awaiting file</div>', unsafe_allow_html=True)
-
-with uc3:
-    st.markdown(f'<div class="tile-wrap" style="border-top-color:{GOLD_STRIPE};"><div class="tile-num-bg">III</div><span class="tile-kicker">Invoice Data</span><div class="tile-title">E-Invoice Report</div><div class="tile-desc">Electronic invoice records — bill numbers and issuance dates matched per job reference.</div><div class="tile-rule"></div></div>', unsafe_allow_html=True)
-    einv_file = st.file_uploader("E-Invoice", type="xlsx", key="einv", label_visibility="collapsed")
-    if einv_file:
-        st.markdown('<div class="tile-status-ok">✓ &nbsp;Loaded</div>', unsafe_allow_html=True)
-        if st.session_state.show_preview:
-            v = validate_file(einv_file, "einv")
-            if v["valid"]:
-                st.markdown(f'<div class="tile-preview"><div class="tp-row"><span>Rows</span><span class="tp-val">{v["rows"]}</span></div><div class="tp-row"><span>Cols</span><span class="tp-val">{v["cols"]}</span></div></div>', unsafe_allow_html=True)
-            einv_file.seek(0)
-    else:
-        st.markdown('<div class="tile-status-wait">○ &nbsp;Awaiting file</div>', unsafe_allow_html=True)
-
-st.markdown('</div></div>', unsafe_allow_html=True)
-
-# SECTION 02
-st.markdown(f'<div class="bf-sec-dark"><div class="bf-sec-dark-inner"><div class="sec-eyebrow">Step Two</div><div class="sec-headline">Configure<br><em>&amp; Execute</em></div><p class="sec-sub">Select billing month and update mode, then run the pipeline in a single click.</p></div></div>', unsafe_allow_html=True)
-
-st.markdown(f'<div style="background:{BG2};padding:0 2.5rem 4rem;border-bottom:1px solid {BORDER};"><div style="max-width:1200px;margin:0 auto;">', unsafe_allow_html=True)
-
-b_c = SAGE if bill_file  else FS_WAIT
-j_c = SAGE if job_file   else FS_WAIT
-e_c = SAGE if einv_file  else FS_WAIT
-b_i = "✓" if bill_file  else "○"
-j_i = "✓" if job_file   else "○"
-e_i = "✓" if einv_file  else "○"
-st.markdown(f'<div class="fs-row"><span class="fs-item" style="color:{b_c};">{b_i}&thinsp; Bill Report</span><span class="fs-item" style="color:{j_c};">{j_i}&thinsp; Job Report</span><span class="fs-item" style="color:{e_c};">{e_i}&thinsp; E-Invoice</span></div>', unsafe_allow_html=True)
-
-cfg_main, cfg_side = st.columns([3,2], gap="large")
-
-with cfg_main:
-    p1, p2 = st.columns(2, gap="large")
-    with p1:
-        st.markdown('<span class="cfg-label">Billing Month</span>', unsafe_allow_html=True)
-        month = st.selectbox("Month", MONTHS, index=st.session_state.selected_month, label_visibility="collapsed", key="month_sel")
-        st.session_state.selected_month = MONTHS.index(month)
-    with p2:
-        st.markdown('<span class="cfg-label">Update Mode</span>', unsafe_allow_html=True)
-        update_mode = st.radio("Mode", ["Append","Overwrite"], label_visibility="collapsed", key="umode")
-
-    if update_mode == "Append":
-        st.markdown('<div class="mode-note mode-ok">New job entries will be appended below existing records — nothing is overwritten or deleted.</div>', unsafe_allow_html=True)
-    else:
-        st.markdown('<div class="mode-note mode-warn">All existing entries for the selected month will be cleared before writing new data.</div>', unsafe_allow_html=True)
-
-    st.markdown(f'<div style="height:1rem;margin-top:1.25rem;border-top:1px solid {BORDER};padding-top:1.25rem;">', unsafe_allow_html=True)
-    sp = st.checkbox("Show file preview after upload", value=st.session_state.show_preview, key="prev_chk")
-    st.session_state.show_preview = sp
-    st.markdown('<div style="height:.75rem;"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="exec-zone">', unsafe_allow_html=True)
-    process_clicked = st.button("✦  Execute Report Generation", key="proc_main", use_container_width=True)
-    st.markdown('</div></div>', unsafe_allow_html=True)
-
-with cfg_side:
-    st.markdown(f'<div class="hist-panel"><div class="hist-panel-title">Activity Log</div>', unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+    
+    st.markdown('<div class="sb-title">Recent Executions</div>', unsafe_allow_html=True)
     if st.session_state.processing_history:
         for entry in reversed(st.session_state.processing_history[-6:]):
-            bc = "he-ok" if entry["status"]=="success" else "he-err"
-            bm = "DONE" if entry["status"]=="success" else "ERROR"
-            st.markdown(f'<div class="hist-entry"><div class="he-info"><span class="he-time">{entry["time"]} · {entry["month"]}</span><span class="he-detail">+{entry["added"]} added · {entry.get("duration","—")}</span></div><span class="he-badge {bc}">{bm}</span></div>', unsafe_allow_html=True)
-        if st.button("Clear log", key="clr_hist"):
-            st.session_state.processing_history = []; st.rerun()
+            st.markdown(f"""
+            <div class="he-wrap">
+                <span class="he-time">{entry["time"]} · {entry["month"]}
+                <span class="{'he-ok' if entry['status']=='success' else 'he-err'}">{'OK' if entry['status']=='success' else 'FAIL'}</span>
+                </span>
+                <span class="he-detail">+{entry["added"]} entries · {entry.get("duration","—")}</span>
+            </div>
+            """, unsafe_allow_html=True)
+        st.markdown('<div style="height:1rem;"></div>', unsafe_allow_html=True)
+        if st.button("Clear Log", key="clr_hist", use_container_width=True):
+            st.session_state.processing_history = []
+            st.rerun()
     else:
-        st.markdown(f'<p class="hist-empty">No runs yet. Processed reports will be logged here with timing and entry counts.</p>', unsafe_allow_html=True)
+        st.markdown(f'<div style="font-family:\'Libre Baskerville\',serif; font-style:italic; font-size:.75rem; color:{INK3}; padding:0 1rem;">No reports generated yet.</div>', unsafe_allow_html=True)
+
+# HEADER
+st.markdown(f'''
+<div class="dsh-wrap">
+    <div class="dsh-eyebrow">Report Automation</div>
+    <div class="dsh-title">Reconciled <em>Reports</em></div>
+    <p class="dsh-sub">Upload your three source documents below. BillFlow intelligently maps columns and merges datasets sequentially within seconds.</p>
+</div>
+''', unsafe_allow_html=True)
+
+st.markdown('<div style="height:2rem;"></div>', unsafe_allow_html=True)
+
+c_left, c_right = st.columns([1.1, 1], gap="large")
+
+with c_left:
+    st.markdown(f'<div class="col-title">1. Source Documents</div>', unsafe_allow_html=True)
+    
+    # Bill
+    st.markdown(f'<div class="tile-wrap" style="border-left-color:{GREEN_STRIPE};"><div class="tile-num-bg">I</div><span class="tile-kicker">Master Ledger</span><div class="tile-title">Bill Report</div><div class="tile-desc">Master billing workbook with monthly tabs.</div>', unsafe_allow_html=True)
+    bill_file = st.file_uploader("Bill Report", type="xlsx", key="bill", label_visibility="collapsed")
+    if bill_file:
+        v = validate_file(bill_file, "bill")
+        if v["valid"]:
+            sn = len(v["sheets"]) if v["sheets"] else "—"
+            st.markdown(f'<div class="tile-status-ok">✓ Loaded successfully</div><div style="margin-top:.75rem;"><div class="tp-row"><span>Rows</span><span class="tp-val">{v["rows"]}</span></div><div class="tp-row"><span>Cols</span><span class="tp-val">{v["cols"]}</span></div><div class="tp-row"><span>Sheets</span><span class="tp-val">{sn}</span></div></div>', unsafe_allow_html=True)
+        bill_file.seek(0)
+    else:
+        st.markdown('<div class="tile-status-wait">○ Awaiting Document</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown('</div></div>', unsafe_allow_html=True)
-
-# PROCESSING
-if process_clicked:
-    if not (bill_file and job_file and einv_file):
-        st.error("All three documents must be uploaded before running.")
+    # Job
+    st.markdown(f'<div class="tile-wrap" style="border-left-color:{RED_STRIPE};"><div class="tile-num-bg">II</div><span class="tile-kicker">Job Details</span><div class="tile-title">Job Report</div><div class="tile-desc">Shipper names, containers, and SB/BE references.</div>', unsafe_allow_html=True)
+    job_file = st.file_uploader("Job Report", type="xlsx", key="job", label_visibility="collapsed")
+    if job_file:
+        v = validate_file(job_file, "job")
+        if v["valid"]:
+            st.markdown(f'<div class="tile-status-ok">✓ Loaded successfully</div><div style="margin-top:.75rem;"><div class="tp-row"><span>Rows</span><span class="tp-val">{v["rows"]}</span></div><div class="tp-row"><span>Cols</span><span class="tp-val">{v["cols"]}</span></div></div>', unsafe_allow_html=True)
+        job_file.seek(0)
     else:
-        st.markdown(f'<div style="background:{BG2};padding:1rem 2.5rem 0;"><div style="max-width:1200px;margin:0 auto;">', unsafe_allow_html=True)
-        pb = st.progress(0); se = st.empty(); de = st.empty()
-        st.markdown('</div></div>', unsafe_allow_html=True)
-        t0 = datetime.now()
+        st.markdown('<div class="tile-status-wait">○ Awaiting Document</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-        def upd(p, msg, det=""):
-            pb.progress(p)
-            se.markdown(f'<div style="background:{BG2};padding:0 2.5rem;"><div style="max-width:1200px;margin:0 auto;"><div class="prog-txt">{msg}</div></div></div>', unsafe_allow_html=True)
-            if det:
-                de.markdown(f'<div style="background:{BG2};padding:0 2.5rem .5rem;"><div style="max-width:1200px;margin:0 auto;"><div class="prog-det"><span>{det}</span><span>{p}%</span></div></div></div>', unsafe_allow_html=True)
+    # EiNV
+    st.markdown(f'<div class="tile-wrap" style="border-left-color:{GOLD_STRIPE};"><div class="tile-num-bg">III</div><span class="tile-kicker">Issuance</span><div class="tile-title">E-Invoice Data</div><div class="tile-desc">Bill numbers directly mapped to job references.</div>', unsafe_allow_html=True)
+    einv_file = st.file_uploader("E-Invoice", type="xlsx", key="einv", label_visibility="collapsed")
+    if einv_file:
+        v = validate_file(einv_file, "einv")
+        if v["valid"]:
+            st.markdown(f'<div class="tile-status-ok">✓ Loaded successfully</div><div style="margin-top:.75rem;"><div class="tp-row"><span>Rows</span><span class="tp-val">{v["rows"]}</span></div><div class="tp-row"><span>Cols</span><span class="tp-val">{v["cols"]}</span></div></div>', unsafe_allow_html=True)
+        einv_file.seek(0)
+    else:
+        st.markdown('<div class="tile-status-wait">○ Awaiting Document</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-        try:
-            upd(10,"Loading workbooks…","Reading Excel files")
-            bill_wb=load_workbook(bill_file); job_wb=load_workbook(job_file); einv_wb=load_workbook(einv_file)
-            upd(22,f"Locating sheet '{month}'…","Checking tabs")
-            if month not in bill_wb.sheetnames:
-                st.error(f"Sheet '{month}' not found. Available: {', '.join(bill_wb.sheetnames)}"); st.stop()
-            bill_ws=bill_wb[month]; job_ws=job_wb.active; einv_ws=einv_wb.active
-            upd(35,"Mapping columns…","Analysing headers")
-            bill_cols, bill_hr = col_map(bill_ws)
-            job_cols, job_hr = col_map(job_ws)
-            einv_cols, einv_hr = col_map(einv_ws)
+with c_right:
+    st.markdown(f'<div class="col-title">2. Configuration & Execution</div>', unsafe_allow_html=True)
+    
+    st.markdown('<div class="cfg-box">', unsafe_allow_html=True)
+    cm1, cm2 = st.columns(2, gap="medium")
+    with cm1:
+        st.markdown('<span class="cfg-label">Target Month</span>', unsafe_allow_html=True)
+        month = st.selectbox("Month", MONTHS, index=st.session_state.selected_month, label_visibility="collapsed")
+        st.session_state.selected_month = MONTHS.index(month)
+    with cm2:
+        st.markdown('<span class="cfg-label">Update Strategy</span>', unsafe_allow_html=True)
+        update_mode = st.radio("Mode", ["Append","Overwrite"], label_visibility="collapsed")
+        
+    if update_mode == "Append":
+        st.markdown('<div class="mode-note mode-ok">Safely appends only new records to existing reports.</div>', unsafe_allow_html=True)
+    else:
+        st.markdown('<div class="mode-note mode-warn">Destructive. Overwrites the complete month tab.</div>', unsafe_allow_html=True)
+        
+    exe = st.button("✦ Compile and Reconcile Report", use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # EXECUTION BLOCK RENDER IN RIGHT COLUMN
+    if exe:
+        if not (bill_file and job_file and einv_file):
+            st.error("Hold up! All three documents must be uploaded before executing.")
+        else:
+            prog_ui = st.empty()
+            res_ui = st.empty()
             
-            bill_ds = (bill_hr + 1) if bill_hr else BILL_DATA_START
-            job_ds = (job_hr + 1) if job_hr else SRC_DATA_START
-            einv_ds = (einv_hr + 1) if einv_hr else SRC_DATA_START
+            t0 = datetime.now()
 
-            upd(45,"Validating structure…","Checking required fields")
-            for c in ["JOB NO","JOB DATE","PARTY NAME","INVOICE NO","SB / BE NO","CONTAINER NO"]:
-                if c not in job_cols: st.error(f"Missing in Job Report: '{c}'"); st.stop()
-            for c in ["JOB NO","BILL NO","BILL DATE"]:
-                if c not in einv_cols: st.error(f"Missing in E-Invoice: '{c}'"); st.stop()
-            for c in ["JOB NO","JOB DATE","PARTY NAME","INVOICE NO","SB / BE NO","CONTAINER NO","BILL NO","BILL DATE"]:
-                if c not in bill_cols: st.error(f"Missing in Bill Report: '{c}'"); st.stop()
-            append_mode=(update_mode=="Append"); existing_jobs=set()
-            if append_mode:
-                upd(55,"Scanning existing entries…","Detecting duplicates")
-                existing_jobs=get_existing_jobs(bill_ws,bill_cols,bill_ds)
-                row=next_empty(bill_ws,bill_ds)
-                last_sr=0
-                for r in range(bill_ds,row):
-                    sv=bill_ws.cell(r,1).value
-                    if sv and isinstance(sv,(int,float)): last_sr=max(last_sr,int(sv))
-                sr=last_sr+1
-            else:
-                upd(55,"Clearing sheet…","Removing existing entries")
-                for r in range(bill_ds,bill_ws.max_row+1):
-                    for c in range(1,bill_ws.max_column+1): bill_ws.cell(r,c).value=None
-                row=bill_ds; sr=1
-            upd(65,"Reading job register…","Parsing entries")
-            jobs={}
-            for r in range(job_ds,job_ws.max_row+1):
-                raw=job_ws.cell(r,job_cols["JOB NO"]).value
-                if not raw: continue
-                jn=clean_job(raw)
-                if jn in jobs: continue
-                jobs[jn]={"JOB DATE":parse_date(job_ws.cell(r,job_cols["JOB DATE"]).value),"PARTY NAME":job_ws.cell(r,job_cols["PARTY NAME"]).value,"INVOICE NO":job_ws.cell(r,job_cols["INVOICE NO"]).value,"SB / BE NO":job_ws.cell(r,job_cols["SB / BE NO"]).value,"CONTAINER NO":job_ws.cell(r,job_cols["CONTAINER NO"]).value}
-            upd(78,"Reading invoice register…","Parsing bills")
-            bill_map=defaultdict(list)
-            for r in range(einv_ds,einv_ws.max_row+1):
-                raw=einv_ws.cell(r,einv_cols["JOB NO"]).value; bno=einv_ws.cell(r,einv_cols["BILL NO"]).value; bd=parse_date(einv_ws.cell(r,einv_cols["BILL DATE"]).value)
-                if raw and bno: bill_map[clean_job(raw)].append((str(bno),bd))
-            upd(88,"Writing report…","Generating output")
-            added=0; skipped=0
-            for jn,data in jobs.items():
-                if append_mode and jn in existing_jobs: skipped+=1; continue
-                bill_ws.cell(row,1).value=sr; bill_ws.cell(row,bill_cols["JOB NO"]).value=jn
-                for field in ["JOB DATE","PARTY NAME","INVOICE NO","SB / BE NO","CONTAINER NO"]:
-                    val=data[field]
-                    if field=="JOB DATE": val=fmt_date(val)
-                    bill_ws.cell(row,bill_cols[field]).value=val
-                if jn in bill_map:
-                    bills=bill_map[jn]
-                    if len(bills)==1: merged=bills[0][0]
-                    else:
-                        fb=str(bills[0][0]); main,suf=(fb.rsplit("/",1)[0],"/"+fb.rsplit("/",1)[1]) if "/" in fb else (fb,"")
-                        extra=[str(bills[i][0]).split("/")[0][-4:] for i in range(1,len(bills))]
-                        merged=main+"/"+"/".join(extra)+suf
-                    vd=[b[1] for b in bills if b[1]]
-                    bill_ws.cell(row,bill_cols["BILL NO"]).value=merged; bill_ws.cell(row,bill_cols["BILL DATE"]).value=fmt_date(max(vd) if vd else None)
-                row+=1; sr+=1; added+=1
-            upd(96,"Saving workbook…","Writing to disk")
-            out=f"UPDATED_BILL_REPORT_{month}.xlsx"; bill_wb.save(out)
-            pb.progress(100); t1=datetime.now(); dur=(t1-t0).total_seconds()
-            se.empty(); de.empty(); pb.empty()
-            st.session_state.processing_history.append({"time":t1.strftime("%H:%M:%S"),"month":month,"status":"success","added":added,"skipped":skipped,"duration":f"{dur:.1f}s"})
+            def upd(p, msg, det=""):
+                html = f"""
+                <div style="margin-top:1.5rem;">
+                    <div class="prog-txt">{msg}</div>
+                    <div class="prog-det"><span>{det}</span><span>{p}%</span></div>
+                </div>
+                """
+                # Native streamlit progress doesn't allow layout custom easily inside an empty block gracefully with HTML wrapping, 
+                # so we will use two elements in the placeholder container.
+                with prog_ui.container():
+                    st.markdown(html, unsafe_allow_html=True)
+                    st.progress(p)
 
-            st.markdown(f"""
-<div class="results-section">
-<div class="results-inner">
-    <div class="sec-eyebrow">Complete</div>
-    <div class="results-headline">Report<br><em>Generated</em></div>
-    <div class="metrics-row">
-        <div class="metric-tile"><div class="mt-num">{added}</div><div class="mt-lbl">Entries Added</div></div>
-        <div class="metric-tile"><div class="mt-num">{skipped}</div><div class="mt-lbl">Skipped</div></div>
-        <div class="metric-tile"><div class="mt-num">{dur:.1f}s</div><div class="mt-lbl">Duration</div></div>
-    </div>
-</div>
-</div>""", unsafe_allow_html=True)
+            try:
+                upd(10,"Loading workbooks…","Reading Excel files into memory")
+                bill_wb=load_workbook(bill_file); job_wb=load_workbook(job_file); einv_wb=load_workbook(einv_file)
+                upd(22,f"Locating sheet '{month}'…","Checking tab integrity")
+                if month not in bill_wb.sheetnames:
+                    st.error(f"Sheet '{month}' not found in the master ledger. Found: {', '.join(bill_wb.sheetnames)}")
+                    st.stop()
+                    
+                bill_ws=bill_wb[month]; job_ws=job_wb.active; einv_ws=einv_wb.active
+                
+                upd(35,"Mapping analytical vectors…","Detecting column headers")
+                bill_cols, bill_hr = col_map(bill_ws)
+                job_cols, job_hr = col_map(job_ws)
+                einv_cols, einv_hr = col_map(einv_ws)
+                
+                bill_ds = (bill_hr + 1) if bill_hr else BILL_DATA_START
+                job_ds = (job_hr + 1) if job_hr else SRC_DATA_START
+                einv_ds = (einv_hr + 1) if einv_hr else SRC_DATA_START
 
-            st.markdown(f'<div style="background:{BG2};padding:0 2.5rem 4rem;"><div style="max-width:1200px;margin:0 auto;">', unsafe_allow_html=True)
-            dl1,dl2,_ = st.columns([1,1,2],gap="medium")
-            with dl1:
-                with open(out,"rb") as f:
-                    st.download_button("↓ Excel",data=f,file_name=out,mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",use_container_width=True,key="dl_xl")
-            with dl2:
-                try:
-                    df=pd.read_excel(out,sheet_name=month,header=BILL_HEADER_ROW-1); csv=df.to_csv(index=False)
-                    st.download_button("↓ CSV",data=csv,file_name=f"UPDATED_BILL_REPORT_{month}.csv",mime="text/csv",use_container_width=True,key="dl_csv")
-                except: pass
-            st.markdown('</div></div>', unsafe_allow_html=True)
+                upd(45,"Validating matrix…","Enforcing structural requirements")
+                for c in ["JOB NO","JOB DATE","PARTY NAME","INVOICE NO","SB / BE NO","CONTAINER NO"]:
+                    if c not in job_cols: st.error(f"Missing in Job Report: '{c}'"); st.stop()
+                for c in ["JOB NO","BILL NO","BILL DATE"]:
+                    if c not in einv_cols: st.error(f"Missing in E-Invoice: '{c}'"); st.stop()
+                for c in ["JOB NO","JOB DATE","PARTY NAME","INVOICE NO","SB / BE NO","CONTAINER NO","BILL NO","BILL DATE"]:
+                    if c not in bill_cols: st.error(f"Missing in Bill Report: '{c}'"); st.stop()
+                    
+                append_mode=(update_mode=="Append"); existing_jobs=set()
+                if append_mode:
+                    upd(55,"Scanning existing footprint…","Detecting duplicates securely")
+                    existing_jobs=get_existing_jobs(bill_ws,bill_cols,bill_ds)
+                    row=next_empty(bill_ws,bill_ds)
+                    last_sr=0
+                    for r in range(bill_ds,row):
+                        sv=bill_ws.cell(r,1).value
+                        if sv and isinstance(sv,(int,float)): last_sr=max(last_sr,int(sv))
+                    sr=last_sr+1
+                else:
+                    upd(55,"Volatile flush…","Wiping the complete month tab")
+                    for r in range(bill_ds,bill_ws.max_row+1):
+                        for c in range(1,bill_ws.max_column+1): bill_ws.cell(r,c).value=None
+                    row=bill_ds; sr=1
+                    
+                upd(65,"Parsing job register…","Deserializing entries")
+                jobs={}
+                for r in range(job_ds,job_ws.max_row+1):
+                    raw=job_ws.cell(r,job_cols["JOB NO"]).value
+                    if not raw: continue
+                    jn=clean_job(raw)
+                    if jn in jobs: continue
+                    jobs[jn]={"JOB DATE":parse_date(job_ws.cell(r,job_cols["JOB DATE"]).value),"PARTY NAME":job_ws.cell(r,job_cols["PARTY NAME"]).value,"INVOICE NO":job_ws.cell(r,job_cols["INVOICE NO"]).value,"SB / BE NO":job_ws.cell(r,job_cols["SB / BE NO"]).value,"CONTAINER NO":job_ws.cell(r,job_cols["CONTAINER NO"]).value}
+                    
+                upd(78,"Reconciling electronic tags…","Mapping bill components")
+                bill_map=defaultdict(list)
+                for r in range(einv_ds,einv_ws.max_row+1):
+                    raw=einv_ws.cell(r,einv_cols["JOB NO"]).value; bno=einv_ws.cell(r,einv_cols["BILL NO"]).value; bd=parse_date(einv_ws.cell(r,einv_cols["BILL DATE"]).value)
+                    if raw and bno: bill_map[clean_job(raw)].append((str(bno),bd))
+                    
+                upd(88,"Synthesizing ledger…","Writing merged outputs")
+                added=0; skipped=0
+                for jn,data in jobs.items():
+                    if append_mode and jn in existing_jobs: skipped+=1; continue
+                    bill_ws.cell(row,1).value=sr; bill_ws.cell(row,bill_cols["JOB NO"]).value=jn
+                    for field in ["JOB DATE","PARTY NAME","INVOICE NO","SB / BE NO","CONTAINER NO"]:
+                        val=data[field]
+                        if field=="JOB DATE": val=fmt_date(val)
+                        bill_ws.cell(row,bill_cols[field]).value=val
+                    if jn in bill_map:
+                        bills=bill_map[jn]
+                        if len(bills)==1: merged=bills[0][0]
+                        else:
+                            fb=str(bills[0][0]); main,suf=(fb.rsplit("/",1)[0],"/"+fb.rsplit("/",1)[1]) if "/" in fb else (fb,"")
+                            extra=[str(bills[i][0]).split("/")[0][-4:] for i in range(1,len(bills))]
+                            merged=main+"/"+"/".join(extra)+suf
+                        vd=[b[1] for b in bills if b[1]]
+                        bill_ws.cell(row,bill_cols["BILL NO"]).value=merged; bill_ws.cell(row,bill_cols["BILL DATE"]).value=fmt_date(max(vd) if vd else None)
+                    row+=1; sr+=1; added+=1
+                    
+                upd(96,"Flushing buffer…","Saving to operational disk")
+                out=f"UPDATED_BILL_REPORT_{month}.xlsx"; bill_wb.save(out)
+                
+                t1=datetime.now(); dur=(t1-t0).total_seconds()
+                st.session_state.processing_history.append({"time":t1.strftime("%H:%M:%S"),"month":month,"status":"success","added":added,"skipped":skipped,"duration":f"{dur:.1f}s"})
+                
+                prog_ui.empty() # Clear loading states safely
+                
+                # Render results in placeholder container
+                with res_ui.container():
+                    st.markdown(f"""
+                    <div class="res-box">
+                        <div class="res-title">Execution Complete</div>
+                        <div class="res-metrics">
+                            <div class="res-m"><span class="res-m-val">{added}</span><span class="res-m-lbl">Added</span></div>
+                            <div class="res-m"><span class="res-m-val">{skipped}</span><span class="res-m-lbl">Skipped</span></div>
+                            <div class="res-m"><span class="res-m-val">{dur:.1f}s</span><span class="res-m-lbl">Duration</span></div>
+                        </div>
+                    </div>
+                    <div style="height:1rem;"></div>
+                    """, unsafe_allow_html=True)
+                    
+                    xl, cv = st.columns(2)
+                    with xl:
+                        with open(out,"rb") as f:
+                            st.download_button("↓ Download Excel", data=f, file_name=out, use_container_width=True)
+                    with cv:
+                        try:
+                            # Safely extract CSV using the dynamic header map
+                            df=pd.read_excel(out,sheet_name=month,header=(bill_hr-1 if bill_hr else 2))
+                            csv=df.to_csv(index=False)
+                            st.download_button("↓ Download CSV", data=csv, file_name=f"UPDATED_BILL_REPORT_{month}.csv", mime="text/csv", use_container_width=True)
+                        except: pass
 
-        except Exception as e:
-            pb.empty(); se.empty(); de.empty()
-            st.session_state.processing_history.append({"time":datetime.now().strftime("%H:%M:%S"),"month":month,"status":"error","added":0,"skipped":0,"duration":"—"})
-            st.error(f"Processing error: {str(e)}")
-            with st.expander("Full error details"): st.exception(e)
-
-# FOOTER
-st.markdown(f'<div class="bf-footer"><div class="bf-footer-inner"><div class="footer-logo">BillFlow <span class="footer-script">Studio</span></div><div class="footer-copy">Report Automation Suite &nbsp;·&nbsp; All rights reserved</div></div></div>', unsafe_allow_html=True)
+            except Exception as e:
+                prog_ui.empty()
+                st.session_state.processing_history.append({"time":datetime.now().strftime("%H:%M:%S"),"month":month,"status":"error","added":0,"skipped":0,"duration":"—"})
+                with res_ui.container():
+                    st.error(f"Critical execution fault: {str(e)}")
+                    with st.expander("Diagnostic Trace"):
+                        st.exception(e)
