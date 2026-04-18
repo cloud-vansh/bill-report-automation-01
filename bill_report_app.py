@@ -3,6 +3,7 @@ from openpyxl import load_workbook
 from collections import defaultdict
 from datetime import datetime
 import pandas as pd
+import re
 
 st.set_page_config(
     page_title="BillFlow · Automation",
@@ -16,6 +17,7 @@ for k, v in {
     'processing_history': [],
     'show_preview': False,
     'dark_mode': False,
+    'last_result': None,
 }.items():
     if k not in st.session_state:
         st.session_state[k] = v
@@ -34,6 +36,13 @@ def validate_file(file, file_type):
         return {"valid": False, "error": str(e)}
 
 def norm(x): return str(x).strip().upper() if x else ""
+def norm_hdr(x):
+    if not x: return ""
+    s = str(x).strip().upper()
+    s = re.sub(r'\s+', ' ', s)
+    s = s.replace(".", "").replace("#", "").replace("_", " ")
+    return s
+
 def clean_job(j): return norm(j).split("/")[0]
 
 def parse_date(d):
@@ -56,15 +65,16 @@ def fmt_date(d):
 def col_map(ws):
     for r in range(1, 25):
         m = {}
-        has_job = False
+        hits = 0
         for c in range(1, ws.max_column + 1):
             v = ws.cell(r, c).value
             if v:
-                nv = norm(v)
+                nv = norm_hdr(v)
                 if nv == "SHIPPER NAME": nv = "PARTY NAME"
                 m[nv] = c
-                if nv == "JOB NO": has_job = True
-        if has_job:
+                if nv in ["JOB NO", "BILL NO", "INVOICE NO", "PARTY NAME", "CONTAINER NO", "BILL DATE", "JOB DATE", "SB / BE NO"]:
+                    hits += 1
+        if hits >= 2:
             return m, r
     return {}, 0
 
@@ -191,8 +201,8 @@ body,
 /* FILE UPLOADER */
 [data-testid="stFileUploader"] {{ margin-top:-.5rem; }}
 [data-testid="stFileUploader"] section {{ background:transparent !important; border:1px dashed {BORDER2} !important; padding:.5rem !important; min-height:0 !important; }}
-[data-testid="stFileUploader"] section p {{ font-family:'Jost',sans-serif !important; font-size:.7rem !important; color:{INK3} !important; margin:0 !important; }}
-[data-testid="stFileUploader"] section button {{ background:{BG3} !important; border:none !important; color:{INK} !important; font-size:.65rem !important; padding:.2rem .6rem !important; }}
+[data-testid="stFileUploader"] section p, [data-testid="stFileUploader"] section span, [data-testid="stFileUploader"] section small {{ font-family:'Jost',sans-serif !important; font-size:.7rem !important; color:{INK} !important; margin:0 !important; }}
+[data-testid="stFileUploader"] section button {{ background:{BG3} !important; border:none !important; color:{INK} !important; font-size:.65rem !important; padding:.2rem .6rem !important; margin-top:.5rem !important; }}
 
 /* CONFIG AREA */
 .cfg-box {{ background:{BG2}; border:1px solid {BORDER}; padding:1.75rem; }}
@@ -207,8 +217,8 @@ body,
 .mode-warn {{ color:{MODE_WN_C}; background:{MODE_WN_BG}; border-color:{MODE_WN_BD}; }}
 
 /* BUTTON */
-.stButton button {{ background:{EXEC_BG} !important; border:1px solid {EXEC_BD} !important; color:{EXEC_TX} !important; font-family:'Jost',sans-serif !important; font-size:.75rem !important; font-weight:700 !important; letter-spacing:.12em !important; text-transform:uppercase !important; border-radius:0 !important; padding:.75rem !important; box-shadow:0 4px 12px rgba(0,0,0,.1) !important; }}
-.stButton button:hover {{ transform:translateY(-1px) !important; filter:brightness(1.1) !important; }}
+.stButton button, .stDownloadButton button {{ background:{EXEC_BG} !important; border:1px solid {EXEC_BD} !important; color:{EXEC_TX} !important; font-family:'Jost',sans-serif !important; font-size:.75rem !important; font-weight:700 !important; letter-spacing:.12em !important; text-transform:uppercase !important; border-radius:0 !important; padding:.75rem !important; box-shadow:0 4px 12px rgba(0,0,0,.1) !important; width:100% !important; }}
+.stButton button:hover, .stDownloadButton button:hover {{ transform:translateY(-1px) !important; filter:brightness(1.1) !important; color:{EXEC_TX} !important; border-color:{EXEC_BD} !important; }}
 
 /* PROGRESS */
 [data-testid="stProgress"] > div {{ background:{PROG_TRK} !important; border-radius:0 !important; height:2px !important; margin-top:2rem !important; }}
@@ -271,6 +281,7 @@ with st.sidebar:
         st.markdown('<div style="height:1rem;"></div>', unsafe_allow_html=True)
         if st.button("Clear Log", key="clr_hist", use_container_width=True):
             st.session_state.processing_history = []
+            st.session_state.last_result = None
             st.rerun()
     else:
         st.markdown(f'<div style="font-family:\'Libre Baskerville\',serif; font-style:italic; font-size:.75rem; color:{INK3}; padding:0 1rem;">No reports generated yet.</div>', unsafe_allow_html=True)
@@ -339,7 +350,7 @@ with c_right:
         st.session_state.selected_month = MONTHS.index(month)
     with cm2:
         st.markdown('<span class="cfg-label">Update Strategy</span>', unsafe_allow_html=True)
-        update_mode = st.radio("Mode", ["Append","Overwrite"], label_visibility="collapsed")
+        update_mode = st.radio("Mode", ["Append","Overwrite"], index=1, label_visibility="collapsed")
         
     if update_mode == "Append":
         st.markdown('<div class="mode-note mode-ok">Safely appends only new records to existing reports.</div>', unsafe_allow_html=True)
@@ -351,6 +362,7 @@ with c_right:
 
     # EXECUTION BLOCK RENDER IN RIGHT COLUMN
     if exe:
+        st.session_state.last_result = None
         if not (bill_file and job_file and einv_file):
             st.error("Hold up! All three documents must be uploaded before executing.")
         else:
@@ -366,8 +378,6 @@ with c_right:
                     <div class="prog-det"><span>{det}</span><span>{p}%</span></div>
                 </div>
                 """
-                # Native streamlit progress doesn't allow layout custom easily inside an empty block gracefully with HTML wrapping, 
-                # so we will use two elements in the placeholder container.
                 with prog_ui.container():
                     st.markdown(html, unsafe_allow_html=True)
                     st.progress(p)
@@ -456,34 +466,16 @@ with c_right:
                 t1=datetime.now(); dur=(t1-t0).total_seconds()
                 st.session_state.processing_history.append({"time":t1.strftime("%H:%M:%S"),"month":month,"status":"success","added":added,"skipped":skipped,"duration":f"{dur:.1f}s"})
                 
-                prog_ui.empty() # Clear loading states safely
-                
-                # Render results in placeholder container
-                with res_ui.container():
-                    st.markdown(f"""
-                    <div class="res-box">
-                        <div class="res-title">Execution Complete</div>
-                        <div class="res-metrics">
-                            <div class="res-m"><span class="res-m-val">{added}</span><span class="res-m-lbl">Added</span></div>
-                            <div class="res-m"><span class="res-m-val">{skipped}</span><span class="res-m-lbl">Skipped</span></div>
-                            <div class="res-m"><span class="res-m-val">{dur:.1f}s</span><span class="res-m-lbl">Duration</span></div>
-                        </div>
-                    </div>
-                    <div style="height:1rem;"></div>
-                    """, unsafe_allow_html=True)
-                    
-                    xl, cv = st.columns(2)
-                    with xl:
-                        with open(out,"rb") as f:
-                            st.download_button("↓ Download Excel", data=f, file_name=out, use_container_width=True)
-                    with cv:
-                        try:
-                            # Safely extract CSV using the dynamic header map
-                            df=pd.read_excel(out,sheet_name=month,header=(bill_hr-1 if bill_hr else 2))
-                            csv=df.to_csv(index=False)
-                            st.download_button("↓ Download CSV", data=csv, file_name=f"UPDATED_BILL_REPORT_{month}.csv", mime="text/csv", use_container_width=True)
-                        except: pass
+                st.session_state.last_result = {
+                    "added": added,
+                    "skipped": skipped,
+                    "dur": f"{dur:.1f}s",
+                    "out": out,
+                    "month": month,
+                    "hdr": (bill_hr-1 if bill_hr else 2)
+                }
 
+                prog_ui.empty()
             except Exception as e:
                 prog_ui.empty()
                 st.session_state.processing_history.append({"time":datetime.now().strftime("%H:%M:%S"),"month":month,"status":"error","added":0,"skipped":0,"duration":"—"})
@@ -491,3 +483,33 @@ with c_right:
                     st.error(f"Critical execution fault: {str(e)}")
                     with st.expander("Diagnostic Trace"):
                         st.exception(e)
+
+    # PERSISTENT RESULTS RENDER
+    if st.session_state.get('last_result'):
+        lr = st.session_state.last_result
+        res_ui = st.empty()
+        with res_ui.container():
+            st.markdown(f"""
+            <div class="res-box">
+                <div class="res-title">Execution Complete</div>
+                <div class="res-metrics">
+                    <div class="res-m"><span class="res-m-val">{lr['added']}</span><span class="res-m-lbl">Added</span></div>
+                    <div class="res-m"><span class="res-m-val">{lr['skipped']}</span><span class="res-m-lbl">Skipped</span></div>
+                    <div class="res-m"><span class="res-m-val">{lr['dur']}</span><span class="res-m-lbl">Duration</span></div>
+                </div>
+            </div>
+            <div style="height:1rem;"></div>
+            """, unsafe_allow_html=True)
+            
+            xl, cv = st.columns(2)
+            try:
+                with open(lr['out'], "rb") as f:
+                    xl_data = f.read()
+                with xl:
+                    st.download_button("↓ Download Excel", data=xl_data, file_name=lr['out'], use_container_width=True)
+                with cv:
+                    df = pd.read_excel(lr['out'], sheet_name=lr['month'], header=lr['hdr'])
+                    csv_data = df.to_csv(index=False)
+                    st.download_button("↓ Download CSV", data=csv_data, file_name=f"UPDATED_BILL_REPORT_{lr['month']}.csv", mime="text/csv", use_container_width=True)
+            except Exception as e:
+                st.error("Error preparing download files. They may have been deleted/overwritten organically.", icon="❌")
