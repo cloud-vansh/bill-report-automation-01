@@ -53,12 +53,20 @@ def fmt_date(d):
     try: return d.strftime("%d/%m/%y")
     except: return None
 
-def col_map(ws, hr):
-    m = {}
-    for c in range(1, ws.max_column + 1):
-        v = ws.cell(hr, c).value
-        if v: m[norm(v)] = c
-    return m
+def col_map(ws):
+    for r in range(1, 25):
+        m = {}
+        has_job = False
+        for c in range(1, ws.max_column + 1):
+            v = ws.cell(r, c).value
+            if v:
+                nv = norm(v)
+                if nv == "SHIPPER NAME": nv = "PARTY NAME"
+                m[nv] = c
+                if nv == "JOB NO": has_job = True
+        if has_job:
+            return m, r
+    return {}, 0
 
 def get_existing_jobs(ws, bc, start):
     ex = set()
@@ -737,9 +745,16 @@ if process_clicked:
                 st.error(f"Sheet '{month}' not found. Available: {', '.join(bill_wb.sheetnames)}"); st.stop()
             bill_ws=bill_wb[month]; job_ws=job_wb.active; einv_ws=einv_wb.active
             upd(35,"Mapping columns…","Analysing headers")
-            bill_cols=col_map(bill_ws,BILL_HEADER_ROW); job_cols=col_map(job_ws,SRC_HEADER_ROW); einv_cols=col_map(einv_ws,SRC_HEADER_ROW)
+            bill_cols, bill_hr = col_map(bill_ws)
+            job_cols, job_hr = col_map(job_ws)
+            einv_cols, einv_hr = col_map(einv_ws)
+            
+            bill_ds = (bill_hr + 1) if bill_hr else BILL_DATA_START
+            job_ds = (job_hr + 1) if job_hr else SRC_DATA_START
+            einv_ds = (einv_hr + 1) if einv_hr else SRC_DATA_START
+
             upd(45,"Validating structure…","Checking required fields")
-            for c in ["JOB NO","JOB DATE","SHIPPER NAME","INVOICE NO","SB / BE NO","CONTAINER NO"]:
+            for c in ["JOB NO","JOB DATE","PARTY NAME","INVOICE NO","SB / BE NO","CONTAINER NO"]:
                 if c not in job_cols: st.error(f"Missing in Job Report: '{c}'"); st.stop()
             for c in ["JOB NO","BILL NO","BILL DATE"]:
                 if c not in einv_cols: st.error(f"Missing in E-Invoice: '{c}'"); st.stop()
@@ -748,29 +763,29 @@ if process_clicked:
             append_mode=(update_mode=="Append"); existing_jobs=set()
             if append_mode:
                 upd(55,"Scanning existing entries…","Detecting duplicates")
-                existing_jobs=get_existing_jobs(bill_ws,bill_cols,BILL_DATA_START)
-                row=next_empty(bill_ws,BILL_DATA_START)
+                existing_jobs=get_existing_jobs(bill_ws,bill_cols,bill_ds)
+                row=next_empty(bill_ws,bill_ds)
                 last_sr=0
-                for r in range(BILL_DATA_START,row):
+                for r in range(bill_ds,row):
                     sv=bill_ws.cell(r,1).value
                     if sv and isinstance(sv,(int,float)): last_sr=max(last_sr,int(sv))
                 sr=last_sr+1
             else:
                 upd(55,"Clearing sheet…","Removing existing entries")
-                for r in range(BILL_DATA_START,bill_ws.max_row+1):
+                for r in range(bill_ds,bill_ws.max_row+1):
                     for c in range(1,bill_ws.max_column+1): bill_ws.cell(r,c).value=None
-                row=BILL_DATA_START; sr=1
+                row=bill_ds; sr=1
             upd(65,"Reading job register…","Parsing entries")
             jobs={}
-            for r in range(SRC_DATA_START,job_ws.max_row+1):
+            for r in range(job_ds,job_ws.max_row+1):
                 raw=job_ws.cell(r,job_cols["JOB NO"]).value
                 if not raw: continue
                 jn=clean_job(raw)
                 if jn in jobs: continue
-                jobs[jn]={"JOB DATE":parse_date(job_ws.cell(r,job_cols["JOB DATE"]).value),"PARTY NAME":job_ws.cell(r,job_cols["SHIPPER NAME"]).value,"INVOICE NO":job_ws.cell(r,job_cols["INVOICE NO"]).value,"SB / BE NO":job_ws.cell(r,job_cols["SB / BE NO"]).value,"CONTAINER NO":job_ws.cell(r,job_cols["CONTAINER NO"]).value}
+                jobs[jn]={"JOB DATE":parse_date(job_ws.cell(r,job_cols["JOB DATE"]).value),"PARTY NAME":job_ws.cell(r,job_cols["PARTY NAME"]).value,"INVOICE NO":job_ws.cell(r,job_cols["INVOICE NO"]).value,"SB / BE NO":job_ws.cell(r,job_cols["SB / BE NO"]).value,"CONTAINER NO":job_ws.cell(r,job_cols["CONTAINER NO"]).value}
             upd(78,"Reading invoice register…","Parsing bills")
             bill_map=defaultdict(list)
-            for r in range(SRC_DATA_START,einv_ws.max_row+1):
+            for r in range(einv_ds,einv_ws.max_row+1):
                 raw=einv_ws.cell(r,einv_cols["JOB NO"]).value; bno=einv_ws.cell(r,einv_cols["BILL NO"]).value; bd=parse_date(einv_ws.cell(r,einv_cols["BILL DATE"]).value)
                 if raw and bno: bill_map[clean_job(raw)].append((str(bno),bd))
             upd(88,"Writing report…","Generating output")
