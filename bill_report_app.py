@@ -349,7 +349,7 @@ with cx_center:
     else:
         st.markdown('<div class="mode-note mode-warn">Destructively resets the primary workbook tab prior to fresh compilation. Standard operating mode.</div>', unsafe_allow_html=True)
 
-    exe = st.button("✦ Trigger Compilation Pipeline", use_container_width=True)
+    exe = st.button("✦ Generate Report", use_container_width=True)
 
 prog_ui = st.empty()
 
