@@ -246,10 +246,6 @@ body,
 st.markdown(f"<style>{CSS}</style>", unsafe_allow_html=True)
 
 # HEADER (Logo + Theme Toggle)
-<<<<<<< HEAD
-=======
-st.markdown('<div style="padding-top:2rem;"></div>', unsafe_allow_html=True)
->>>>>>> fc48fede42665028f2af19af9574c7306dab3ebc
 top_left, top_empty, top_right = st.columns([2, 7, 2])
 
 with top_left:
