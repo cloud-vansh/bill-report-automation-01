@@ -162,7 +162,7 @@ body,
 }}
 
 /* HERO AND BRANDING */
-.hero-wrap {{ padding: 2.5rem 1rem 6rem; text-align: center; border-bottom:1px solid {BORDER}; }}
+.hero-wrap {{ padding: 2.5rem 1rem 3rem; text-align: center; border-bottom:1px solid {BORDER}; }}
 .hero-logo {{ font-family:'Cormorant',serif; font-size:1.6rem; font-weight:700; color:{INK}; position:absolute; top:2rem; left:2.5rem; }}
 .hero-script {{ font-family:'Caveat',cursive; font-size:1.2rem; font-weight:600; color:{RUST}; }}
 .sub-script {{ font-family:'Caveat',cursive; font-size:1.6rem; font-weight:600; color:{RUST}; display:block; margin: 3rem auto 0.5rem; }}
@@ -171,8 +171,8 @@ body,
 .hero-desc {{ font-family:'Libre Baskerville',serif; font-style:italic; font-size:1.15rem; color:{INK3}; max-width:800px; margin:0 auto; line-height:1.6; padding:0 1rem; }}
 
 /* LAYOUT SPACING */
-.sec-wrap {{ padding: 6rem 2.5rem; max-width:1600px; margin: 0 auto; }}
-.sec-title {{ font-family:'Jost',sans-serif; font-size:.7rem; font-weight:700; letter-spacing:.25em; text-transform:uppercase; color:{INK3}; text-align:center; margin-bottom:4rem; }}
+.sec-wrap {{ padding: 3rem 2.5rem 1rem; max-width:1600px; margin: 0 auto; }}
+.sec-title {{ font-family:'Jost',sans-serif; font-size:.7rem; font-weight:700; letter-spacing:.25em; text-transform:uppercase; color:{INK3}; text-align:center; margin-bottom:2.5rem; }}
 
 /* TILES 3-COLUMN */
 .tile-wrap {{ background:{BG2}; border:1px solid {BORDER}; border-top:4px solid; padding:2rem 1.5rem; position:relative; overflow:hidden; display:flex; flex-direction:column; height: 100%; }}
@@ -330,25 +330,26 @@ with c3:
 st.markdown('</div>', unsafe_allow_html=True)
 
 # CONFIG AND EXECUTION
-st.markdown('<div class="sec-wrap" style="padding-top:0;"><div class="sec-title">2. Configuration & Execution</div>', unsafe_allow_html=True)
+st.markdown('<div class="sec-wrap" style="padding-top:0;"><div class="sec-title">2. Configuration & Execution</div></div>', unsafe_allow_html=True)
 
-st.markdown('<div class="cfg-box">', unsafe_allow_html=True)
-mcols = st.columns(2, gap="large")
-with mcols[0]:
-    st.markdown('<span class="cfg-label">Target Cycle</span>', unsafe_allow_html=True)
-    month = st.selectbox("Month", MONTHS, index=st.session_state.selected_month, label_visibility="collapsed")
-    st.session_state.selected_month = MONTHS.index(month)
-with mcols[1]:
-    st.markdown('<span class="cfg-label">Injection Strategy</span>', unsafe_allow_html=True)
-    update_mode = st.radio("Mode", ["Append","Overwrite"], index=1, label_visibility="collapsed")
+cx_left, cx_center, cx_right = st.columns([1, 4, 1])
 
-if update_mode == "Append":
-    st.markdown('<div class="mode-note mode-ok">Safely appends unique missing nodes directly without stripping foundational table data.</div>', unsafe_allow_html=True)
-else:
-    st.markdown('<div class="mode-note mode-warn">Destructively resets the primary workbook tab prior to fresh compilation. Standard operating mode.</div>', unsafe_allow_html=True)
+with cx_center:
+    mcols = st.columns(2, gap="large")
+    with mcols[0]:
+        st.markdown('<span class="cfg-label">Target Cycle</span>', unsafe_allow_html=True)
+        month = st.selectbox("Month", MONTHS, index=st.session_state.selected_month, label_visibility="collapsed")
+        st.session_state.selected_month = MONTHS.index(month)
+    with mcols[1]:
+        st.markdown('<span class="cfg-label">Injection Strategy</span>', unsafe_allow_html=True)
+        update_mode = st.radio("Mode", ["Append","Overwrite"], index=1, label_visibility="collapsed")
 
-exe = st.button("✦ Trigger Compilation Pipeline", use_container_width=True)
-st.markdown('</div>', unsafe_allow_html=True)
+    if update_mode == "Append":
+        st.markdown('<div class="mode-note mode-ok">Safely appends unique missing nodes directly without stripping foundational table data.</div>', unsafe_allow_html=True)
+    else:
+        st.markdown('<div class="mode-note mode-warn">Destructively resets the primary workbook tab prior to fresh compilation. Standard operating mode.</div>', unsafe_allow_html=True)
+
+    exe = st.button("✦ Trigger Compilation Pipeline", use_container_width=True)
 
 prog_ui = st.empty()
 
