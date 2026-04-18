@@ -193,8 +193,8 @@ body,
 [data-testid="stFileUploader"] section:hover {{ background:{BG3} !important; border-color:{INK2} !important; }}
 [data-testid="stFileUploader"] section p, 
 [data-testid="stFileUploader"] section span, 
-[data-testid="stFileUploader"] section small, 
-[data-testid="stFileUploader"] section div {{ font-family:'Jost',sans-serif !important; font-size:.75rem !important; color:{INK} !important; margin:0 !important; font-weight:600 !important; }}
+[data-testid="stFileUploader"] section small {{ font-family:'Jost',sans-serif !important; font-size:.75rem !important; color:{INK} !important; margin:0 !important; font-weight:600 !important; }}
+[data-testid="stFileUploader"] section div {{ font-family:'Jost',sans-serif !important; color:{INK} !important; font-weight:600 !important; }}
 [data-testid="stFileUploader"] section button {{ background:{BG3} !important; border:1px solid {BORDER} !important; color:{INK} !important; font-size:.65rem !important; font-weight:700 !important; padding:.3rem .8rem !important; margin-top:.5rem !important; text-transform:uppercase !important; border-radius:0 !important; }}
 
 /* CONFIG AREA */
